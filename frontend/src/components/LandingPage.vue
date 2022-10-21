@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'LandingPage',
+  name: 'PlayerAction',
   props: {
     msg: String
   }
@@ -23,7 +23,7 @@ h3 {
 }
 ul {
   list-style-type: none;
-  padding: 0;
+  padding: 10;
 }
 li {
   display: inline-block;
