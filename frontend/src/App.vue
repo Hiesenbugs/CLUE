@@ -3,7 +3,6 @@
   <div id="app">
     <h1>Hiesenbugs Clue Game</h1>
 
-
     <div class="get-player-location">
       <input type="radio" v-model="getPlayerLocation" @keydown.enter="getLocation">
       <button @click="getLocation">GetLocation</button>
@@ -48,7 +47,7 @@ export default {
     async setLocation() {
       try {
         await axios.post(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`, {
-          body: {'userId':"greenPlayer", 'location': this.setPlayerLocation}
+          body: {'userId':"greenplayer", 'location': this.setPlayerLocation}
         })
       } catch (e) {
         this.errors.push(e)
