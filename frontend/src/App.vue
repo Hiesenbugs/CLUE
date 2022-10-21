@@ -15,7 +15,7 @@
     </div>
 
     <figure>
-      <img src="../../images/bmo.png" alt="bmo" width="100" height="100" />
+      <img src="./assets/bmo.png" alt="bmo" width="100" height="100" />
       <figcaption> Green Player </figcaption>
     </figure>
 
@@ -48,7 +48,7 @@ export default {
     async setLocation() {
       try {
         await axios.post(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`, {
-          body: this.setPlayerLocation
+          body: {'userId':"greenPlayer", 'location': this.setPlayerLocation}
         })
       } catch (e) {
         this.errors.push(e)
