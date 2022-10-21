@@ -1,4 +1,3 @@
-
 <template>
   <div id="app">
     <h1>Hiesenbugs Clue Game</h1>
@@ -8,9 +7,17 @@
       <button @click="getLocation">GetLocation</button>
     </div>
 
+    <div class="get-player-location-response">
+      <span>{{setPlayerLocationResponse}}</span>
+    </div>
+
     <div class="set-player-location">
       <input type="text" v-model="setPlayerLocation" @keydown.enter="setLocation">
       <button @click="setLocation">SetLocation</button>
+    </div>
+
+    <div class="set-player-response">
+      <span>{{setPlayerLocationResponse}}</span>
     </div>
 
     <figure>
@@ -27,11 +34,12 @@ import axios from 'axios';
 export default {
   name: 'App',
   components: {},
-
   data() {
     return {
-      getPlayerLocation: "",
-      setPlayerLocation: ""
+      getPlayerLocation: '',
+      setPlayerLocation: '',
+      playerLocation: '',
+      setPlayerLocationResponse: '',
     }
   },
   methods: {
@@ -39,16 +47,17 @@ export default {
       let user_id = "greenplayer";
       try {
         const response = await axios.get(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/get/${user_id}`)
-        this.getPlayerLocation = response.data
+        this.playerLocation = response.data
       } catch (e) {
         this.errors.push(e)
       }
     },
     async setLocation() {
       try {
-        await axios.post(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`, {
+        const response = await axios.post(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`, {
           body: {'userId':"greenplayer", 'location': this.setPlayerLocation}
         })
+        this.setPlayerLocationResponse = response.data
       } catch (e) {
         this.errors.push(e)
       }
@@ -65,15 +74,5 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
-
-.img-with-text {
-  text-align: justify;
-  width: 100;
-}
-
-.img-with-text img {
-  display: block;
-  margin: 0 auto;
 }
 </style>
