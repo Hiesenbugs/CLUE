@@ -18,7 +18,7 @@ authorAvatar: ''
 
 ### Prerequisites
 
-In order to package your dependencies locally with `serverless-python-requirements`, you need to have `Python3.8` installed locally. You can create and activate a dedicated virtual environment with the following command:
+In order to package your dependencies locally with `serverless-python-requirements`, you need to have `Python3.9` installed locally. You can create and activate a dedicated virtual environment with the following command:
 
 ```bash
 python3.9 -m venv ./venv
@@ -66,7 +66,7 @@ _Note_: In current form, after deployment, your API is public and can be invoked
 After successful deployment, you can create a new user by calling the corresponding endpoint:
 
 ```bash
-curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/player/location/set/' --header 'Content-Type: application/json' --data-raw '{"location": A20, "userId": "user-234"}'
+curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/player/location/set/' --header 'Content-Type: application/json' --data-raw '{"location": "A20", "userId": "user-234"}'
 ```
 
 ```bash
