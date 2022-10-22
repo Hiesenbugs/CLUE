@@ -5,19 +5,13 @@
     <div class="get-player-location">
       <input type="radio" v-model="getPlayerLocation" @keydown.enter="getLocation">
       <button @click="getLocation">GetLocation</button>
-    </div>
-
-    <div class="get-player-location-response">
-      <span>{{setPlayerLocationResponse}}</span>
+      <span>{{playerLocation}}</span>
     </div>
 
     <div class="set-player-location">
       <input type="text" v-model="setPlayerLocation" @keydown.enter="setLocation">
       <button @click="setLocation">SetLocation</button>
-    </div>
-
-    <div class="set-player-response">
-      <span>{{setPlayerLocationResponse}}</span>
+      <span>setPlayerLocationResponseCode: {{setPlayerLocationResponseCode}}</span>
     </div>
 
     <figure>
@@ -39,7 +33,7 @@ export default {
       getPlayerLocation: '',
       setPlayerLocation: '',
       playerLocation: '',
-      setPlayerLocationResponse: '',
+      setPlayerLocationResponseCode: '',
     }
   },
   methods: {
@@ -49,17 +43,28 @@ export default {
         const response = await axios.get(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/get/${user_id}`)
         this.playerLocation = response.data
       } catch (e) {
-        this.errors.push(e)
+        console.log("getLocation Error:", e)
       }
     },
     async setLocation() {
+      let axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': "application/json",
+        }
+      };
+      var payloadBody = {  'userId': "greenplayer", 
+                    'location': this.setPlayerLocation 
+                  }
+
       try {
-        const response = await axios.post(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`, {
-          body: {'userId':"greenplayer", 'location': this.setPlayerLocation}
-        })
-        this.setPlayerLocationResponse = response.data
+        const response = await axios.post( `https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`,
+                                            payloadBody,
+                                            axiosConfig
+                                            )
+      this.setPlayerLocationResponseCode = response.data.ResponseMetadata.HTTPStatusCode
       } catch (e) {
-        this.errors.push(e)
+        console.log("setLocation Error:", e)
       }
     }
   }
