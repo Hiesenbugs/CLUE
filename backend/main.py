@@ -7,6 +7,24 @@ from pydantic import BaseModel
 from mangum import Mangum
 from dynamodb_json import json_util as json
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+origins = [
+    "*",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 import logging
 
 
@@ -18,7 +36,7 @@ class Item(BaseModel):
     userId: str
     location: str
 
-app = FastAPI()
+
 dynamodb_client = boto3.client('dynamodb')
 GAME_TABLE = os.environ['GAME_TABLE']
 
