@@ -6,7 +6,7 @@ class Player {
       this.gameId = gameId;
     }
 
-    initalizePlayerLocation(){
+    initalizePlayerLocation(gameId){
         let loction = ""
 
         location = Board(gameId).getLocation
