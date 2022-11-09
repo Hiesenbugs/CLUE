@@ -53,3 +53,95 @@ Class Board {
     }
     
 }
+
+
+
+class Player {
+
+    char colors = ["red","blue","green"]
+    constructor(userId) {
+      this.userId = userId;
+      this.gameId = gameId;
+    }
+
+    initalizePlayerLocation(gameId){
+        let loction = ""
+
+        location = Board(gameId).getLocation
+        return locaiton
+    }
+
+    getCharacterColor(){
+        for color in colors:
+            if color exists in gamesTable with "userID"
+                pass
+            else:   
+                inster into gamesTable with "userId"
+        return color
+    }
+
+    getPlayerCards(){
+        player_cards = Board.getInitialCards
+        return player_cards
+    }
+
+    
+  }
+
+
+  Class PlayerAction {
+
+    constructor(userId) {
+        this.userId = userId
+        this.gameId = gameId
+    }
+
+    roll dice(){
+        // return random(1,12)
+    }
+
+
+    move(){
+        change gameTable userId CharecterLocation 
+    }
+
+    suggestion (){
+
+    }
+
+    accusation (){
+
+    }
+
+    disproveCard() {
+
+
+    }
+
+    showDetectiveLog () {
+
+    }
+
+    getCurrentPlayerTurn(){
+        userIds = []
+        // scan GameTable and fill userIds
+        // sort userIds by alphabet
+        // call BoardTable and get currentPlayerTurn
+        // if null:
+             insert userIds[0] into ddb
+            else:
+                get userIds.index('currentPlayerTurn) in userIds
+                insert userIds.index('currentPlayerTurn) next
+    }
+
+    endTurn (){
+
+    }
+}
+
+
+
+
+
+
+
