@@ -69,4 +69,34 @@ if os.environ.get('IS_OFFLINE'):
         'dynamodb', region_name='localhost', endpoint_url='http://localhost:8000'
     )
 
+
+class Lobby(BaseModel):
+    userId: str
+    location: str
+
+@app.post("/player/lobby/set/")
+async def set_player_details(item: Item):
+    print(item)
+    result = dynamodb_client.put_item(
+        TableName=GAME_TABLE, Item={'userId': {'S': item.userId}, 'location': {'S': item.location}}
+    )
+    logger.info(result)
+    return result
+
+@app.get("/player/lobby/")
+async def start_lobby(item: Item):
+    print(item)
+    result = dynamodb_client.put_item(
+        TableName=GAME_TABLE, Item={'userId': {'S': item.userId}, 'location': {'S': item.location}}
+    )
+    logger.info(result)
+    return result
+
+
+if os.environ.get('IS_OFFLINE'):
+    dynamodb_client = boto3.client(
+        'dynamodb', region_name='localhost', endpoint_url='http://localhost:8000'
+    )
+
+
 handler = Mangum(app)
