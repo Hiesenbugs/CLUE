@@ -1,24 +1,20 @@
 <template>
   <div id="app">
-    <h1>Hiesenbugs Clue Game</h1>
-
-    <div class="get-player-location">
-      <input type="radio" v-model="getPlayerLocation" @keydown.enter="getLocation">
-      <button @click="getLocation">GetLocation</button>
-      <span>{{playerLocation}}</span>
+    <h1>The Heisenbugs Present...</h1>
+    <h2>CLUELESS</h2>
+    <div class="Join-Lobby">
+      <input v-model="name" placeholder="Enter Name"/>
+      <button :disabled="join > 0" @click="JoinLobby">Join Lobby</button>
+      <figure>
+        <img v-if="join > 0" src="character" alt="characterColor" width="100" height="100" />
+      </figure>
     </div>
-
-    <div class="set-player-location">
-      <input type="text" v-model="setPlayerLocation" @keydown.enter="setLocation">
-      <button @click="setLocation">SetLocation</button>
-      <span>setPlayerLocationResponseCode: {{setPlayerLocationResponseCode}}</span>
+    <div class="Start-Game">
+      <button :disabled="LobbyCount != 4" @click="Start">Start</button>
     </div>
-
-    <figure>
-      <img src="./assets/bmo.png" alt="bmo" width="100" height="100" />
-      <figcaption> Green Player </figcaption>
-    </figure>
-
+    <div class="Players-In-Lobby"> <!-- constant update on this -->
+      <span>{{lobbyCount}}</span>
+    </div>
   </div>
 </template>
 
@@ -26,46 +22,42 @@
 import axios from 'axios';
 
 export default {
-  name: 'App',
-  components: {},
   data() {
     return {
-      getPlayerLocation: '',
-      setPlayerLocation: '',
-      playerLocation: '',
-      setPlayerLocationResponseCode: '',
+      name: '',
+      join: 0,
+      character:'',
+      characterColor:''
     }
   },
   methods: {
-    async getLocation() {
-      let user_id = "greenplayer";
-      try {
-        const response = await axios.get(`https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/get/${user_id}`)
-        this.playerLocation = response.data
-      } catch (e) {
-        console.log("getLocation Error:", e)
-      }
-    },
-    async setLocation() {
-      let axiosConfig = {
+    async JoinLobby(event) {
+      alert(`${this.name} has joined the game lobby.`)
+      if (event) {
+        this.join++
+        //Rand number for index of character out of array[characters]
+        //Check if character is already assigned in player table
+        //If statements for each character, assign character = ./assets/character.png and characterColor
+        let axiosConfig = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': "application/json",
         }
-      };
-      var payloadBody = {  'userId': "greenplayer", 
-                    'location': this.setPlayerLocation 
-                  }
-
-      try {
-        const response = await axios.post( `https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/player/location/set/`,
+        };
+        var payloadBody = {  'userId': "characterColor",  } //add boolean value for startLobby = true
+        try {
+        const response = await axios.post( `https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/lobby/join/`,
                                             payloadBody,
                                             axiosConfig
                                             )
-      this.setPlayerLocationResponseCode = response.data.ResponseMetadata.HTTPStatusCode
-      } catch (e) {
+        this.lobbyCount = response.data.ResponseMetadata.HTTPStatusCode //return total players in lobby
+        } catch (e) {
         console.log("setLocation Error:", e)
+        }
       }
+    },
+    Start() {
+      this.$router.push('/GamePage')
     }
   }
 }
@@ -81,3 +73,39 @@ export default {
   margin-top: 60px;
 }
 </style>
+
+
+
+
+
+class Lobby {
+  constructor(userId) {
+    this.userId = userId;
+  }
+
+  joinLobby(){
+      // 1.  ddb.put_item(this.userId)
+      // 2.  lobby_count = dd.get_count(userId)
+
+      return lobby_count
+  }
+
+  startGame(){
+      // 1. ddb.put_item(Item = {"userID" = this.userID, startGame = True})  
+      // 2. dict = ddb.scan("lobby-table-dev")
+      //    for keys,vals in dict.items():
+      //      if false in vals:
+      //        return false
+      //      else:
+      //            let game_Id = random_number(0-1000)
+      //            for player in keys:
+      //              player_object = Player(userId, gameId)
+      //              load player_object in new GamePage
+      //              load player_object + game_Id in GameTable
+      //              create winning hand Board.winningHand
+      //              redirect to new GamePage         
+  }
+
+}
+
+
