@@ -1,9 +1,9 @@
 <template>
-  <div id="end">
+  <div id="app">
     <h1>
       {{ winner }} has won!
     </h1>
-    <div class="Replay">
+    <div id="replay">
       <button @click="Replay">Replay</button>
     </div>
   </div>
@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style scoped>
-#end {
+#app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
