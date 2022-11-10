@@ -1,4 +1,6 @@
 
+
+<!--  
 Class Board {
     constructor(gameId) {
         this.gameId = gameId
@@ -138,7 +140,7 @@ class Player {
 
     }
 }
-
+-->
 
 
 
