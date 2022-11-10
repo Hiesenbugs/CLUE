@@ -57,7 +57,7 @@ export default {
       }
     },
     Start() {
-      this.$router.push('/GamePage')
+      this.$router.push('/components/GamePage')
     }
   }
 }
@@ -74,10 +74,7 @@ export default {
 }
 </style>
 
-
-
-
-
+<!--  
 class Lobby {
   constructor(userId) {
     this.userId = userId;
@@ -107,5 +104,5 @@ class Lobby {
   }
 
 }
-
+-->
 
