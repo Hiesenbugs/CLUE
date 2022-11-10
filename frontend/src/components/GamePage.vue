@@ -16,10 +16,14 @@
       <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
     </div>
     <div id="selected">
-      <select v-model="selected" multiple>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
+      <select v-model="suspect" multiple>
+        <option v-for="suspect in suspects" v-bind:key="suspect" :value="suspect">{{suspect}}</option>
+      </select>
+      <select v-model="weapon" multiple>
+        <option v-for="weapon in weapons" v-bind:key="weapon" :value="weapon">{{weapon}}</option>
+      </select>
+      <select v-model="room" multiple>
+        <option v-for="room in rooms" v-bind:key="room" :value="room">{{room}}</option>
       </select>
     </div>
     <div class="suggestionButton">
@@ -37,7 +41,10 @@ export default {
   name: "App",
   data() {
     return {
-      diceNum: 1
+      diceNum: 1,
+      suspects: ["Bmo", "Finn", "Jake", "Princess Bubblegum"],
+      weapons: ["Rope", "Candlestick", "Dagger", "Wrench", "Lead Pipe", "Revolver"],
+      rooms: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
     };
   },
   methods: {
@@ -79,7 +86,12 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
-.rollDice {
+#notebook {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+}
+#rollDice {
   display: flex;
   flex-direction: column;
   justify-content: center;
