@@ -28,7 +28,7 @@ export default {
       join: 0,
       character:'',
       characterColor:''
-    }
+    };
   },
   methods: {
     async JoinLobby() {
