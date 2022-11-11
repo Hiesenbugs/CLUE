@@ -32,6 +32,9 @@
     <div class="accusationButton">
       <button @click="Accusation">Accusation</button>
     </div>
+    <div v-for="row in x" v-bind:key="row">
+      <button id="grid" v-for="col in x" v-bind:key="col"></button>
+    </div>
 </template>
 
 <script>
@@ -44,8 +47,12 @@ export default {
       diceNum: 1,
       suspects: ["Bmo", "Finn", "Jake", "Princess Bubblegum"],
       weapons: ["Rope", "Candlestick", "Dagger", "Wrench", "Lead Pipe", "Revolver"],
-      rooms: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+      rooms: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+      x: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
     };
+  },
+  props: {
+
   },
   methods: {
     setRandomDiceData() {
