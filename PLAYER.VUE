@@ -17,13 +17,13 @@ class Player
         // Set the region 
         AWS.config.update({region: 'REGION'});
         // Create the DynamoDB service object
-        var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
-        var params = {
+        var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});// is the API version correct?
+        var color = {
         TableName: 'gameTable',
         Key: {
-        'characterColor': {N: '001'}
+        'characterColor': {N: '001'} // what is '001'?
         };
-  ProjectionExpression: 'ATTRIBUTE_NAME'
+        //ProjectionExpression: 'ATTRIBUTE_NAME' - not needed because we will have one value for chacter color for each player
 };
         for (color in colors){
             if color exists in gamesTable with "userID"
