@@ -1,5 +1,5 @@
 {
-    "name": "myserverlessproject",
+    "name": "clue-websockets",
     "version": "1.0.0",
     "description": "",
     "main": "webpack.config.js",
@@ -13,14 +13,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/SamWSoftware/ServerlessYoutubeSeries.git"
-    },
     "author": "",
     "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/SamWSoftware/ServerlessYoutubeSeries/issues"
-    },
-    "homepage": "https://github.com/SamWSoftware/ServerlessYoutubeSeries#readme"
+    "homepage": ""
 }

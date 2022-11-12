@@ -19,6 +19,20 @@ const send = ({ domainName, stage, connectionID, message }) => {
     return ws.postToConnection(postParams).promise();
 };
 
+const broadcast = ({ domainName, stage, connections, message }) => {
+
+    const ws = create(domainName, stage);
+
+    connections.forEach(async connection => {
+        const postParams = {
+            Data: message,
+            ConnectionId: connection,
+        };
+        await ws.postToConnection(postParams);
+    });
+};
+
 module.exports = {
     send,
+    broadcast,
 };

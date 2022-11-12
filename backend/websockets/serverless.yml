@@ -1,4 +1,4 @@
-service: myserverlessproject2
+service: clue-websockets
 
 provider:
     name: aws
@@ -10,8 +10,9 @@ provider:
         - Effect: Allow
           Action:
               - dynamodb:*
+              - "execute-api:ManageConnections"
           Resource: '*'
-
+          
 custom:
     tableName: WebsocketUsers
 
@@ -31,12 +32,16 @@ functions:
         events:
             - websocket:
                   route: $default
-    websocket-message:
-        handler: lambdas/websockets/message.handler
+    websocket-unicast:
+        handler: lambdas/websockets/unicast.handler
         events:
             - websocket:
-                  route: message
-
+                  route: unicast
+    websocket-broadcast:
+        handler: lambdas/websockets/broadcast.handler
+        events:
+            - websocket:
+                  route: broadcast
 resources:
     Resources:
         WeboscketUserTable:
@@ -44,9 +49,9 @@ resources:
             Properties:
                 TableName: ${self:custom.tableName}
                 AttributeDefinitions:
-                    - AttributeName: ID
+                    - AttributeName: connectionId
                       AttributeType: S
                 KeySchema:
-                    - AttributeName: ID
+                    - AttributeName: connectionId
                       KeyType: HASH
                 BillingMode: PAY_PER_REQUEST
