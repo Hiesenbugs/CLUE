@@ -167,45 +167,74 @@ export default {
 
 #CandyKingdom {
   position: relative;
-  bottom: 450px;
-  width: 100px;
-  height: 100px;
+  bottom: 650px;
+  left: 350px;
+  width: 75px;
+  height: 75px;
 }
 
 #CottonCandyForest {
-  color: black;
+  position: relative;
+  bottom: 650px;
+  left: 542px;
+  width: 75px;
+  height: 75px;
 }
 
 #FireKingdom {
-  color: black;
+  position: relative;
+  bottom: 650px;
+  left: 735px;
+  width: 75px;
+  height: 75px;
 }
 
 #GlassKingdom {
-  color: black;
+  position: relative;
+  bottom: 450px;
+  left: 670px;
+  width: 75px;
+  height: 75px;
 }
 
 #IceKingdom {
-  color: black;
+  position: relative;
+  bottom: 250px;
+  left: 585px;
+  width: 75px;
+  height: 75px;
 }
 
 #LandoftheDead {
-  color: black;
+  position: relative;
+  bottom: 250px;
+  left: 242px;
+  width: 75px;
+  height: 75px;
 }
 
 #LumpySpace {
-  color: black;
+  position: relative;
+  bottom: 250px;
+  right: 100px;
+  width: 75px;
+  height: 75px;
 }
 
 #MysteryMountains {
-  color: black;
+  position: relative;
+  bottom: 400px;
+  right: 185px;
+  width: 75px;
+  height: 75px;
 }
 
 #TreeHouse {
-  color: black;
-}
-
-#roomGrid {
-  color: black;
+  position: relative;
+  bottom: 500px;
+  right: 260px;
+  width: 75px;
+  height: 75px;
 }
 
 #moveGrid {
