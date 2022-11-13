@@ -53,10 +53,10 @@
     <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name
     }}</button>
   </div>
-  <div>
-    <figure>
-      <img v-if="checkedRoom > 0" src="./assets/bmo.png" alt="bmo" width="100" height="100" />
-      <figcaption> Green Player </figcaption>
+  <div id="cardGrid">
+    <figure class="card">
+      <img v-if="checkedRoom.length == 0" src="./assets/bmo.png" alt="bmo" width="100" height="100" />
+      <figcaption> Bmo Card Sample </figcaption>
     </figure>
   </div>
 </template>
@@ -180,6 +180,12 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.card{
+  position: relative;
+  bottom: 200px;
+  left: 750px;
 }
 
 #CandyKingdom {
