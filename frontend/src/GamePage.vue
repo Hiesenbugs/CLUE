@@ -39,9 +39,9 @@
   </div>
   <div id="selectedRoom">
     <div v-for="room in rooms" v-bind:key="room">
-      <input type="checkbox" :id="room" :value="room.name"
-        :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room) === -1" v-model="checkedRoom">
-      <label :for="room">{{ room.name }}</label>
+      <input type="checkbox" :id="room.name" :value="room.name"
+        :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
+      <label :for="room.name">{{ room.name }}</label>
     </div>
   </div>
   <div id="moveGrid">
@@ -50,7 +50,14 @@
     </div>
   </div>
   <div id="roomGrid">
-    <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name }}</button>
+    <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name
+    }}</button>
+  </div>
+  <div>
+    <figure>
+      <img v-if="checkedRoom > 0" src="./assets/bmo.png" alt="bmo" width="100" height="100" />
+      <figcaption> Green Player </figcaption>
+    </figure>
   </div>
 </template>
 
@@ -75,15 +82,34 @@ export default {
         "Finn Sword",
         "Gauntlet",
         "Mushroom Bomb"],
-      rooms: [{roomId: "CandyKingdom", name: "Candy Kingdom"},
-      {roomId: "CottonCandyForest", name: "Cotton Candy Forest"},
-      {roomId: "FireKingdom", name: "Fire Kingdom"},
-      {roomId: "GlassKingdom", name: "Glass Kingdom"},
-      {roomId: "IceKingdom", name: "Ice Kingdom"},
-      {roomId: "LandoftheDead", name: "Land of the Dead"},
-      {roomId: "LumpySpace", name: "Lumpy Space"},
-      {roomId: "MysteryMountains", name: "Mystery Mountains"},
-      {roomId: "TreeHouse", name: "Tree House"}],
+      rooms: [{ roomId: "CandyKingdom", name: "Candy Kingdom" },
+      { roomId: "CottonCandyForest", name: "Cotton Candy Forest" },
+      { roomId: "FireKingdom", name: "Fire Kingdom" },
+      { roomId: "GlassKingdom", name: "Glass Kingdom" },
+      { roomId: "IceKingdom", name: "Ice Kingdom" },
+      { roomId: "LandoftheDead", name: "Land of the Dead" },
+      { roomId: "LumpySpace", name: "Lumpy Space" },
+      { roomId: "MysteryMountains", name: "Mystery Mountains" },
+      { roomId: "TreeHouse", name: "Tree House" }],
+      cards: [{ cardId: "BmoCard", asset: "bmo.png" },
+      { cardId: "FinnCard", asset: "finn.png" },
+      { cardId: "JakeCard", asset: "jake.png" },
+      { cardId: "PrincessBubblegumCard", asset: "princess_bubblegum.png" },
+      { cardId: "AxeBassCard", asset: "Axe_Bass.png" },
+      { cardId: "DemonicWishingEyeCard", asset: "Demonic_Wishing_Eye.png" },
+      { cardId: "ElectrodeGunCard", asset: "Electrode_Gun.png" },
+      { cardId: "FinnSwordCard", asset: "Finn_Sword.png" },
+      { cardId: "GauntletCard", asset: "Gauntlet.png" },
+      { cardId: "MushroomBombCard", asset: "Mushroom_Bomb.png" },
+      { cardId: "CandyKingdomCard", asset: "Candy_Kingdom.png" },
+      { cardId: "CottonCandyForestCard", asset: "Cotton_Candy_Forest.png" },
+      { cardId: "FireKingdomCard", asset: "Fire_Kingdom.png" },
+      { cardId: "GlassKingdomCard", asset: "Glass_Kingdom.png" },
+      { cardId: "IceKingdomCard", asset: "Ice_Kingdom.png" },
+      { cardId: "LandoftheDeadCard", asset: "Land_of_the_Dead.png" },
+      { cardId: "LumpySpaceCard", asset: "Lumpy_Space.png" },
+      { cardId: "MysteryMountainsCard", asset: "Mystery_Mountains.png" },
+      { cardId: "TreeHouseCard", asset: "TreeHouseINT.png" }],
       coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
@@ -166,7 +192,7 @@ export default {
 
 #CottonCandyForest {
   position: relative;
-  bottom: 650px;
+  bottom: 657px;
   left: 542px;
   width: 75px;
   height: 75px;
