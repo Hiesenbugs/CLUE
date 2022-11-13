@@ -1,40 +1,57 @@
 <template>
-    <div id="app">
-      <h1>Hello World</h1>
+  <div id="app">
+    <h1>Adventure Time Clue!</h1>
+  </div>
+  <div class="turnButton">
+    <button @click="Move">Move</button>
+  </div>
+  <div class="turnButton">
+    <button @click="EndTurn">End Turn</button>
+  </div>
+  <div class="turnButton">
+    <button @click="setDice">Roll Dice</button>
+  </div>
+  <div id="rollDice">
+    <div :class="getDice"></div>
+  </div>
+  <div>
+    <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
+  </div>
+  <div id="suggestionButton">
+    <button @click="Suggestion">Suggestion</button>
+  </div>
+  <div id="accusationButton">
+    <button @click="Accusation">Accusation</button>
+  </div>
+  <div id="selectedSuspect">
+    <div v-for="suspect in suspects" v-bind:key="suspect">
+      <input type="checkbox" :id="suspect" :value="suspect"
+        :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
+      <label :for="suspect">{{ suspect }}</label>
     </div>
-    <div class="turnButton">
-      <button @click="Move">Move</button>
+  </div>
+  <div id="selectedWeapon">
+    <div v-for="weapon in weapons" v-bind:key="weapon">
+      <input type="checkbox" :id="weapon" :value="weapon"
+        :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
+      <label :for="weapon">{{ weapon }}</label>
     </div>
-    <div class="turnButton">
-      <button @click="EndTurn">End Turn</button>
+  </div>
+  <div id="selectedRoom">
+    <div v-for="room in rooms" v-bind:key="room">
+      <input type="checkbox" :id="room" :value="room"
+        :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room) === -1" v-model="checkedRoom">
+      <label :for="room">{{ room }}</label>
     </div>
-    <div id="rollDice">
-      <div :class="getDice"></div>
-      <button @click="setDice">Roll Dice</button>
+  </div>
+  <div id="moveGrid">
+    <div v-for="(row, idx1) in coord" v-bind:key="row">
+      <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col" v-bind:style="color"></button>
     </div>
-    <div>
-      <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
-    </div>
-    <div id="selected">
-      <select v-model="suspect" multiple>
-        <option v-for="suspect in suspects" v-bind:key="suspect" :value="suspect">{{suspect}}</option>
-      </select>
-      <select v-model="weapon" multiple>
-        <option v-for="weapon in weapons" v-bind:key="weapon" :value="weapon">{{weapon}}</option>
-      </select>
-      <select v-model="room" multiple>
-        <option v-for="room in rooms" v-bind:key="room" :value="room">{{room}}</option>
-      </select>
-    </div>
-    <div class="suggestionButton">
-      <button @click="Suggestion">Suggestion</button>
-    </div>
-    <div class="accusationButton">
-      <button @click="Accusation">Accusation</button>
-    </div>
-    <div v-for="row in x" v-bind:key="row">
-      <button id="grid" v-for="col in x" v-bind:key="col"></button>
-    </div>
+  </div>
+  <div id="roomGrid">
+    <button v-for="room in roomIds" v-bind:key="room" :id="room" @click="printToConsole(room)"></button>
+  </div>
 </template>
 
 <script>
@@ -44,17 +61,71 @@ export default {
   name: "App",
   data() {
     return {
+      checkedSuspect: [],
+      checkedWeapon: [],
+      checkedRoom: [],
       diceNum: 1,
-      suspects: ["Bmo", "Finn", "Jake", "Princess Bubblegum"],
-      weapons: ["Rope", "Candlestick", "Dagger", "Wrench", "Lead Pipe", "Revolver"],
-      rooms: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-      x: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
+      suspects: ["Bmo",
+        "Finn",
+        "Jake",
+        "Princess Bubblegum"],
+      weapons: ["Axe Bass",
+        "Demonic Wishing Eye",
+        "Electrode Gun",
+        "Finn Sword",
+        "Gauntlet",
+        "Mushroom Bomb"],
+      rooms: ["Candy Kingdom",
+        "Cotton Candy Forest",
+        "Fire Kingdom",
+        "Glass Kingdom",
+        "Ice Kingdom",
+        "Land of the Dead",
+        "Lumpy Space",
+        "Mystery Mountains",
+        "Tree House"],
+      roomIds: ["CandyKingdom",
+        "CottonCandyForest",
+        "FireKingdom",
+        "GlassKingdom",
+        "IceKingdom",
+        "LandoftheDead",
+        "LumpySpace",
+        "MysteryMountains",
+        "TreeHouse"],
+      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      ],
+
+      color: "red",
+
+      xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
     };
   },
-  props: {
-
-  },
   methods: {
+    getGrid(x, y) {
+      this.xCoord = x;
+      this.yCoord = y;
+      return `c${this.xCoord}-${this.yCoord}`;
+    },
+    printToConsole: function (x) {
+      console.log(x)
+    },
     setRandomDiceData() {
       const randomDiceNum = Math.floor(Math.random() * 6) + 1;
       this.diceNum = randomDiceNum;
@@ -93,44 +164,154 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
-#notebook {
-        position: absolute;
-        top: 0px;
-        right: 0px;
+
+#CandyKingdom {
+  position: relative;
+  bottom: 450px;
+  width: 100px;
+  height: 100px;
 }
+
+#CottonCandyForest {
+  color: black;
+}
+
+#FireKingdom {
+  color: black;
+}
+
+#GlassKingdom {
+  color: black;
+}
+
+#IceKingdom {
+  color: black;
+}
+
+#LandoftheDead {
+  color: black;
+}
+
+#LumpySpace {
+  color: black;
+}
+
+#MysteryMountains {
+  color: black;
+}
+
+#TreeHouse {
+  color: black;
+}
+
+#roomGrid {
+  color: black;
+}
+
+#moveGrid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom: 250px;
+}
+
+#accusationButton {
+  position: relative;
+  bottom: 122px;
+  left: 1100px;
+}
+
+#suggestionButton {
+  position: relative;
+  bottom: 100px;
+  left: 900px;
+}
+
+#selectedSuspect {
+  position: relative;
+  bottom: 100px;
+  left: 800px;
+}
+
+#selectedWeapon {
+  position: relative;
+  bottom: 180px;
+  left: 955px;
+}
+
+#selectedRoom {
+  position: relative;
+  bottom: 297px;
+  left: 1125px;
+}
+
+.turnButton {
+  position: relative;
+  top: 50px;
+  left: 50px;
+}
+
+#notebook {
+  width: 300px;
+  min-height: 72px;
+  padding: 2px;
+  resize: none;
+  overflow: hidden;
+  background-color: transparent;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-family: "Inconsolata", monospace;
+  font-size: 1rem;
+  color: #000;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
 #rollDice {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
 .dice {
-    display: inline-block;
-    min-height: 1em;
-    padding-left: 1em;
-    background-size: 1em;
-    background-repeat: no-repeat;
-    font-size: 3em;
+  display: inline-block;
+  min-height: 1em;
+  padding-left: 1em;
+  background-size: 1em;
+  background-repeat: no-repeat;
+  font-size: 3em;
+  position: relative;
+  top: 50px;
+  right: 450px;
 }
+
 .dice-1 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cg transform='translate(113.25%2C-494.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-406.5%2C374.7)'%3E%3Crect x='588' y='240.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(337.5%2C87.5)' cx='325' cy='227.4' r='12.5' style='fill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
 }
+
 .dice-2 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(109.9%2C-505.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-415.6%2C485.6)'%3E%3Crect x='613' y='40.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(326.5%2C-148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(398.5%2C-76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
 }
+
 .dice-3 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(84.9%2C-515.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-290.6%2C514.9)'%3E%3Crect x='413' y='2.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(126.5%2C-186)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(198.5%2C-114)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(162.5%2C-150)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
 }
+
 .dice-4 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(90.7%2C-499.7)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-302.7%2C367.8)'%3E%3Crect x='425.5' y='265.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(139%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(139%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
 }
+
 .dice-5 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(89.2%2C-510.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-194.9%2C372.3)'%3E%3Crect x='213' y='277.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-73.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-73.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-37.5%2C125)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
 }
+
 .dice-6 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(86.2%2C-500.6)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-98.2%2C356.2)'%3E%3Crect x='25.5' y='290.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-261%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
 }
-
 </style>
 
 <!--  
