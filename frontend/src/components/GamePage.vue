@@ -39,9 +39,9 @@
   </div>
   <div id="selectedRoom">
     <div v-for="room in rooms" v-bind:key="room">
-      <input type="checkbox" :id="room" :value="room"
+      <input type="checkbox" :id="room" :value="room.name"
         :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room) === -1" v-model="checkedRoom">
-      <label :for="room">{{ room }}</label>
+      <label :for="room">{{ room.name }}</label>
     </div>
   </div>
   <div id="moveGrid">
@@ -50,7 +50,7 @@
     </div>
   </div>
   <div id="roomGrid">
-    <button v-for="room in roomIds" v-bind:key="room" :id="room" @click="printToConsole(room)"></button>
+    <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name }}</button>
   </div>
 </template>
 
@@ -75,24 +75,15 @@ export default {
         "Finn Sword",
         "Gauntlet",
         "Mushroom Bomb"],
-      rooms: ["Candy Kingdom",
-        "Cotton Candy Forest",
-        "Fire Kingdom",
-        "Glass Kingdom",
-        "Ice Kingdom",
-        "Land of the Dead",
-        "Lumpy Space",
-        "Mystery Mountains",
-        "Tree House"],
-      roomIds: ["CandyKingdom",
-        "CottonCandyForest",
-        "FireKingdom",
-        "GlassKingdom",
-        "IceKingdom",
-        "LandoftheDead",
-        "LumpySpace",
-        "MysteryMountains",
-        "TreeHouse"],
+      rooms: [{roomId: "CandyKingdom", name: "Candy Kingdom"},
+      {roomId: "CottonCandyForest", name: "Cotton Candy Forest"},
+      {roomId: "FireKingdom", name: "Fire Kingdom"},
+      {roomId: "GlassKingdom", name: "Glass Kingdom"},
+      {roomId: "IceKingdom", name: "Ice Kingdom"},
+      {roomId: "LandoftheDead", name: "Land of the Dead"},
+      {roomId: "LumpySpace", name: "Lumpy Space"},
+      {roomId: "MysteryMountains", name: "Mystery Mountains"},
+      {roomId: "TreeHouse", name: "Tree House"}],
       coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
