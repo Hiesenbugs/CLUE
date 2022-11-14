@@ -59,6 +59,7 @@
       <figcaption> Bmo Card Sample </figcaption>
     </figure>
   </div>
+  <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
 </template>
 
 <script>
@@ -68,6 +69,7 @@ export default {
   name: "App",
   data() {
     return {
+      gameStateAlert: ["Game State"],
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
@@ -182,9 +184,15 @@ export default {
   margin-top: 60px;
 }
 
+#gameStateAlert {
+  position: relative;
+  bottom: 800px;
+  left: 50px;
+}
+
 .card{
   position: relative;
-  bottom: 200px;
+  bottom: 225px;
   left: 750px;
 }
 
