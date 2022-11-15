@@ -55,7 +55,7 @@ export default {
       }
     },
     async Start() {
-      this.$router.push('/components/GamePage')
+      this.$router.push('/GamePage')
     }
   }
 }
