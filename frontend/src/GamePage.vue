@@ -192,6 +192,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  width: 960px;
+  margin: 0 auto;
+  position: relative;
 }
 
 #gameStateAlert {
@@ -296,13 +299,13 @@ export default {
 
 #accusationButton {
   position: relative;
-  bottom: 152px;
+  bottom: 137px;
   left: 1100px;
 }
 
 #suggestionButton {
   position: relative;
-  bottom: 130px;
+  bottom: 115px;
   left: 900px;
 }
 
