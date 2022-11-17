@@ -187,6 +187,21 @@ export default {
 </script>
 
 <style scoped>
+#c0-0 {
+  position: absolute;
+  left: 275px;
+  top: -50px;
+  width: 75px;
+  height: 75px;
+}
+#c0-23 {
+  position: absolute;
+  right: 275px;
+  top: -50px;
+  width: 75px;
+  height: 75px;
+}
+
 #app {
   width: 1300px;
   margin: 0 auto;
