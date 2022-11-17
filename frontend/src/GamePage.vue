@@ -63,7 +63,7 @@
     <div id="moveGrid">
       <div v-for="(row, idx1) in coord" v-bind:key="row">
         <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="[getGrid(idx1, idx2) ? { 'background': 'white' } : { 'background': 'red' }, {'border' : '2px solid black'}]">></button>
+          :style="[getGrid(idx1, idx2) ? { 'background': 'white' } : { 'background': 'red' }]">></button>
       </div>
     </div>
   </div>
