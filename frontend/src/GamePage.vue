@@ -188,7 +188,8 @@ export default {
 
 <style scoped>
 #app {
-  width: 1080px;
+  width: 1300px;
+  height: 1920px;
   margin: 0 auto;
   position: relative;
 }
