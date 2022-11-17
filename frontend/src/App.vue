@@ -11,6 +11,9 @@
     </div>
     <div id="playersInLobby">
       <!-- constant update on this -->
+    <h2>Lobby Count: {{lobbyCount}} </h2>  
+    <h2>Start Game: {{startGame}} </h2>  
+
     </div>
   </div>
 </template>
@@ -53,17 +56,16 @@ export default {
     this.connection.debug = true;
     this.connection.reconnectInterval = 4000;
 
-    this.connection.onmessage = function (event) {
+    this.connection.onmessage = (event) => {
       let response = JSON.parse(event.data)
       console.log("Event Recieved from server", response);
       this.startGame = response.message.startGame
       console.log("Start Game:", this.startGame)
       this.lobbyCount = response.message.lobbyCount
       console.log("Lobby Count:", this.lobbyCount)
-
     }
 
-    this.connection.onopen = function (event) {
+    this.connection.onopen = (event) => {
       console.log(event)
       console.log("Successfully connected to the echo websocket server...")
     }
