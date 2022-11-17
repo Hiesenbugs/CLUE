@@ -1,65 +1,74 @@
 <template>
   <div id="app">
-    <h1>Adventure Time Clue!</h1>
-  </div>
-  <div class="turnButton">
-    <button @click="Move">Move</button>
-  </div>
-  <div class="turnButton">
-    <button @click="EndTurn">End Turn</button>
-  </div>
-  <div class="turnButton">
-    <button @click="setDice">Roll Dice</button>
-  </div>
-  <div id="rollDice">
-    <div :class="getDice"></div>
-  </div>
-  <div>
-    <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
-  </div>
-  <div id="suggestionButton">
-    <button @click="Suggestion">Suggestion</button>
-  </div>
-  <div id="accusationButton">
-    <button @click="Accusation">Accusation</button>
-  </div>
-  <div id="selectedSuspect">
-    <div v-for="suspect in suspects" v-bind:key="suspect">
-      <input type="checkbox" :id="suspect" :value="suspect"
-        :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
-      <label :for="suspect">{{ suspect }}</label>
+    <div id="title">
+      <h1>Adventure Time Clue!</h1>
+    </div>
+    <div class="turnButton">
+      <button @click="Move">Move</button>
+    </div>
+    <div class="turnButton">
+      <button @click="EndTurn">End Turn</button>
+    </div>
+    <div class="turnButton">
+      <button @click="setDice">Roll Dice</button>
+    </div>
+    <div id="rollDice">
+      <div :class="getDice"></div>
+    </div>
+    <div id="suggestAccuseButton">
+      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
+    </div>
+    <div id="suggestAccuseButton">
+      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
+    </div>
+    <div id="selected">
+      <div id="selectedSuspect">
+        <div v-for="suspect in suspects" v-bind:key="suspect">
+          <input type="checkbox" :id="suspect" :value="suspect"
+            :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
+          <label :for="suspect">{{ suspect }}</label>
+        </div>
+      </div>
+      <div id="selectedWeapon">
+        <div v-for="weapon in weapons" v-bind:key="weapon">
+          <input type="checkbox" :id="weapon" :value="weapon"
+            :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
+          <label :for="weapon">{{ weapon }}</label>
+        </div>
+      </div>
+      <div id="selectedRoom">
+        <div v-for="room in rooms" v-bind:key="room">
+          <input type="checkbox" :id="room.name" :value="room.name"
+            :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
+          <label :for="room.name">{{ room.name }}</label>
+        </div>
+      </div>
+    </div>
+    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
+
+    <div id="cardGrid">
+      <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
+        <img :src="require(`${hcard.asset}`)" width="50" height="50" />
+        <figcaption> {{ hcard.cardId }} - Hand </figcaption>
+      </figure>
+    </div>
+    <div id="moveGrid">
+      <div v-for="(row, idx1) in coord" v-bind:key="row">
+        <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
+          @click="printToConsole(getGrid(idx1, idx2))">></button>
+      </div>
+    </div>
+    <div>
+      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
+        <img v-if="disproveCard.length != 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
+        <figcaption> {{ dcard.cardId }} - Disprove </figcaption>
+      </figure>
+    </div>
+    <div>
+      <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
     </div>
   </div>
-  <div id="selectedWeapon">
-    <div v-for="weapon in weapons" v-bind:key="weapon">
-      <input type="checkbox" :id="weapon" :value="weapon"
-        :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
-      <label :for="weapon">{{ weapon }}</label>
-    </div>
-  </div>
-  <div id="selectedRoom">
-    <div v-for="room in rooms" v-bind:key="room">
-      <input type="checkbox" :id="room.name" :value="room.name"
-        :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
-      <label :for="room.name">{{ room.name }}</label>
-    </div>
-  </div>
-  <div id="moveGrid">
-    <div v-for="(row, idx1) in coord" v-bind:key="row">
-      <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col" v-bind:style="color"></button>
-    </div>
-  </div>
-  <div id="roomGrid">
-    <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name
-    }}</button>
-  </div>
-  <div id="cardGrid">
-    <figure class="card">
-      <img v-if="checkedRoom.length == 0" src="./assets/bmo.png" alt="bmo" width="100" height="100" />
-      <figcaption> Bmo Card Sample </figcaption>
-    </figure>
-  </div>
-  <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
 </template>
 
 <script>
@@ -70,6 +79,11 @@ export default {
   data() {
     return {
       gameStateAlert: ["Game State"],
+      playerHand: [{ cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
+      { cardId: "BmoCard", asset: "./assets/bmo.png" },
+      { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
+      { cardId: "CottonCandyForestCard", asset: "./assets/Cotton_Candy_Forest.png" }],
+      disproveCard: [{ cardId: "DemonicWishingEyeCard", asset: "./assets/Demonic_Wishing_Eye.png" }],
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
@@ -93,45 +107,44 @@ export default {
       { roomId: "LumpySpace", name: "Lumpy Space" },
       { roomId: "MysteryMountains", name: "Mystery Mountains" },
       { roomId: "TreeHouse", name: "Tree House" }],
-      cards: [{ cardId: "BmoCard", asset: "bmo.png" },
-      { cardId: "FinnCard", asset: "finn.png" },
-      { cardId: "JakeCard", asset: "jake.png" },
-      { cardId: "PrincessBubblegumCard", asset: "princess_bubblegum.png" },
-      { cardId: "AxeBassCard", asset: "Axe_Bass.png" },
-      { cardId: "DemonicWishingEyeCard", asset: "Demonic_Wishing_Eye.png" },
-      { cardId: "ElectrodeGunCard", asset: "Electrode_Gun.png" },
-      { cardId: "FinnSwordCard", asset: "Finn_Sword.png" },
-      { cardId: "GauntletCard", asset: "Gauntlet.png" },
-      { cardId: "MushroomBombCard", asset: "Mushroom_Bomb.png" },
-      { cardId: "CandyKingdomCard", asset: "Candy_Kingdom.png" },
-      { cardId: "CottonCandyForestCard", asset: "Cotton_Candy_Forest.png" },
-      { cardId: "FireKingdomCard", asset: "Fire_Kingdom.png" },
-      { cardId: "GlassKingdomCard", asset: "Glass_Kingdom.png" },
-      { cardId: "IceKingdomCard", asset: "Ice_Kingdom.png" },
-      { cardId: "LandoftheDeadCard", asset: "Land_of_the_Dead.png" },
-      { cardId: "LumpySpaceCard", asset: "Lumpy_Space.png" },
-      { cardId: "MysteryMountainsCard", asset: "Mystery_Mountains.png" },
-      { cardId: "TreeHouseCard", asset: "TreeHouseINT.png" }],
-      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      cards: [{ cardId: "BmoCard", asset: "./assets/bmo.png" },
+      { cardId: "FinnCard", asset: "./assets/finn.png" },
+      { cardId: "JakeCard", asset: "./assets/jake.png" },
+      { cardId: "PrincessBubblegumCard", asset: "./assets/princess_bubblegum.png" },
+      { cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
+      { cardId: "DemonicWishingEyeCard", asset: "./assets/Demonic_Wishing_Eye.png" },
+      { cardId: "ElectrodeGunCard", asset: "./assets/Electrode_Gun.png" },
+      { cardId: "FinnSwordCard", asset: "./assets/Finn_Sword.png" },
+      { cardId: "GauntletCard", asset: "./assets/Gauntlet.png" },
+      { cardId: "MushroomBombCard", asset: "./assets/Mushroom_Bomb.png" },
+      { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
+      { cardId: "CottonCandyForestCard", asset: "./assets/Cotton_Candy_Forest.png" },
+      { cardId: "FireKingdomCard", asset: "./assets/Fire_Kingdom.png" },
+      { cardId: "GlassKingdomCard", asset: "./assets/Glass_Kingdom.png" },
+      { cardId: "IceKingdomCard", asset: "./assets/Ice_Kingdom.png" },
+      { cardId: "LandoftheDeadCard", asset: "./assets/Land_of_the_Dead.png" },
+      { cardId: "LumpySpaceCard", asset: "./assets/Lumpy_Space.png" },
+      { cardId: "MysteryMountainsCard", asset: "./assets/Mystery_Mountains.png" },
+      { cardId: "TreeHouseCard", asset: "./assets/TreeHouseINT.png" }],
+      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
       ],
-
-      color: "red",
+      roomCoord: ["c0-0", "c0-11", "c0-22", "c8-22", "c16-22", "c16-11", "c16-0", "c7-0", "c9-0"],
 
       xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
     };
@@ -142,8 +155,43 @@ export default {
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
     },
+    getRoom(coord) {
+      if (coord == this.roomCoord[0]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[1]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[2]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[3]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[4]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[5]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[6]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[7]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[8]) {
+        return 1;
+      }
+      else {
+        return 0;
+      }
+    },
     printToConsole: function (x) {
       console.log(x)
+    },
+    printAccusationToConsole: function (a, b, c) {
+      console.log('Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c)
     },
     setRandomDiceData() {
       const randomDiceNum = Math.floor(Math.random() * 6) + 1;
@@ -176,158 +224,23 @@ export default {
 
 <style scoped>
 #app {
+  width: 1700px;
+  margin: 0 auto;
+  position: absolute;
+}
+
+#title {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
-}
-
-#gameStateAlert {
-  position: relative;
-  bottom: 800px;
-  left: 50px;
-}
-
-.card{
-  position: relative;
-  bottom: 225px;
-  left: 750px;
-}
-
-#CandyKingdom {
-  position: relative;
-  bottom: 650px;
-  left: 350px;
-  width: 75px;
-  height: 75px;
-}
-
-#CottonCandyForest {
-  position: relative;
-  bottom: 657px;
-  left: 542px;
-  width: 75px;
-  height: 75px;
-}
-
-#FireKingdom {
-  position: relative;
-  bottom: 650px;
-  left: 735px;
-  width: 75px;
-  height: 75px;
-}
-
-#GlassKingdom {
-  position: relative;
-  bottom: 450px;
-  left: 670px;
-  width: 75px;
-  height: 75px;
-}
-
-#IceKingdom {
-  position: relative;
-  bottom: 250px;
-  left: 585px;
-  width: 75px;
-  height: 75px;
-}
-
-#LandoftheDead {
-  position: relative;
-  bottom: 250px;
-  left: 242px;
-  width: 75px;
-  height: 75px;
-}
-
-#LumpySpace {
-  position: relative;
-  bottom: 250px;
-  right: 100px;
-  width: 75px;
-  height: 75px;
-}
-
-#MysteryMountains {
-  position: relative;
-  bottom: 400px;
-  right: 185px;
-  width: 75px;
-  height: 75px;
-}
-
-#TreeHouse {
-  position: relative;
-  bottom: 500px;
-  right: 260px;
-  width: 75px;
-  height: 75px;
-}
-
-#moveGrid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  bottom: 250px;
-}
-
-#accusationButton {
-  position: relative;
-  bottom: 122px;
-  left: 1100px;
-}
-
-#suggestionButton {
-  position: relative;
-  bottom: 100px;
-  left: 900px;
-}
-
-#selectedSuspect {
-  position: relative;
-  bottom: 100px;
-  left: 800px;
-}
-
-#selectedWeapon {
-  position: relative;
-  bottom: 180px;
-  left: 955px;
-}
-
-#selectedRoom {
-  position: relative;
-  bottom: 297px;
-  left: 1125px;
 }
 
 .turnButton {
   position: relative;
   top: 50px;
-  left: 50px;
-}
-
-#notebook {
-  width: 300px;
-  min-height: 72px;
-  padding: 2px;
-  resize: none;
-  overflow: hidden;
-  background-color: transparent;
-  border: 2px solid #000;
-  border-radius: 4px;
-  font-family: "Inconsolata", monospace;
-  font-size: 1rem;
-  color: #000;
-  position: absolute;
-  top: 0px;
-  right: 0px;
+  left: 0px;
 }
 
 #rollDice {
@@ -346,7 +259,156 @@ export default {
   font-size: 3em;
   position: relative;
   top: 50px;
-  right: 450px;
+  right: 750px;
+}
+
+#notebook {
+  width: 300px;
+  min-height: 72px;
+  padding: 2px;
+  resize: vertical;
+  overflow: hidden;
+  background-color: transparent;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-family: "Inconsolata", monospace;
+  font-size: 1rem;
+  color: #000;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  overflow-y: scroll;
+}
+
+#suggestAccuseButton {
+  position: relative;
+  display: inline-block;
+  padding-left: 165px;
+  bottom: 105px;
+  left: 800px;
+}
+
+#selected {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+  bottom: 100px;
+}
+
+#selectedSuspect {
+  position: absolute;
+  left: 900px;
+}
+
+#selectedWeapon {
+  position: absolute;
+  left: 1055px;
+}
+
+#selectedRoom {
+  position: absolute;
+  left: 1225px;
+}
+
+#gameStateAlert {
+  position: relative;
+  bottom: 975px;
+  left: 350px;
+}
+
+.card {
+  display: inline-block;
+  position: relative;
+  top: 650px;
+}
+
+#moveGrid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom: 10px;
+}
+
+#c0-0 {
+  position: absolute;
+  left: 500px;
+  top: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c0-11 {
+  position: absolute;
+  right: 810px;
+  top: -80px;
+  width: 80px;
+  height: 80px;
+}
+
+#c0-22 {
+  position: absolute;
+  right: 500px;
+  top: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c8-22 {
+  position: absolute;
+  right: 472px;
+  top: 181px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-22 {
+  position: absolute;
+  right: 500px;
+  bottom: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-11 {
+  position: absolute;
+  right: 810px;
+  bottom: -80px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-0 {
+  position: absolute;
+  left: 500px;
+  bottom: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c7-0 {
+  position: absolute;
+  left: 460px;
+  top: 100px;
+  width: 80px;
+  height: 80px;
+}
+
+#c9-0 {
+  position: absolute;
+  left: 460px;
+  bottom: 100px;
+  width: 80px;
+  height: 80px;
+}
+
+#disproveCard {
+  position: relative;
+  bottom: -105px;
+  left: 1100px;
 }
 
 .dice-1 {
@@ -515,9 +577,5 @@ class Player {
     }
 }
 -->
-
-
-
-
 
 
