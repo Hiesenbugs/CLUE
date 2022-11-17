@@ -1,19 +1,22 @@
-const Responses = require('../common/API_Responses');
-const Dynamo = require('../common/Dynamo');
+const AWS = require('aws-sdk');
+const ddb = new AWS.DynamoDB.DocumentClient();
 
-const tableName = process.env.tableName;
+const lobbyTableName = process.env.lobbyTableName;
 
-exports.handler = async event => {
-    console.log('event', event);
+function addConnection(connectionId) {
+    return ddb.put({
+        TableName: lobbyTableName,
+        Item: {
+            connectionId: connectionId
+        }
+    }).promise();
+}
 
-    const { connectionId, domainName, stage } = event.requestContext;
-    const data = {
-        connectionId,
-        domainName,
-        stage,
-    };
-
-    await Dynamo.write(data, tableName);
-
-    return Responses._200({ message: 'connected' });
+exports.handler = (event, context, callback) => {
+    const connectionId = event.requestContext.connectionId;
+    addConnection(connectionId).then(() => {
+        callback(null, { statusCode: 200 });
+    });
 };
+
+

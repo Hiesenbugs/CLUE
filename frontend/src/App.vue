@@ -3,62 +3,81 @@
     <h1>The Heisenbugs Present...</h1>
     <h2>CLUELESS</h2>
     <div id="joinLobbyButton">
-      <input v-model="name" placeholder="Enter Name"/>
-      <button :disabled="join > 0" @click="JoinLobby">Join Lobby</button>
-      <figure>
-        <img v-if="join > 0" src="character" alt="characterColor" width="100" height="100" />
-      </figure>
+      <input v-model="this.userId" placeholder="Enter Name" />
+      <button :disabled="lobbyCount > 0" @click="JoinLobby">Join Lobby</button>
     </div>
     <div id="startButton">
-      <button :disabled="join != 1" @click="Start">Start</button>
+      <button :disabled="lobbyCount != 2" @click="StartGame">Start</button>
     </div>
-    <div id="playersInLobby"> <!-- constant update on this -->
-      <span>{{lobbyCount}}</span>
+    <div id="playersInLobby">
+      <!-- constant update on this -->
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 export default {
-  data() {
+  data: function () {
     return {
-      name: '',
-      join: 0,
-      character:'',
-      characterColor:''
-    };
+      userId: '',
+      websocketResponse: '',
+      lobbyCount: '',
+      startGame: false
+    }
   },
   methods: {
-    async JoinLobby() {
-      alert(`${this.name} has joined the game lobby.`)
-      this.join++
-      //Rand number for index of character out of array[characters]
-      //Check if character is already assigned in player table
-      //If statements for each character, assign character = ./assets/character.png and characterColor
-      let axiosConfig = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': "application/json",
-      }
-      };
-      var payloadBody = {  'userId': "characterColor",  } //add boolean value for startLobby = true
-      try {
-      const response = await axios.post( `https://93cpkeoc1e.execute-api.us-east-1.amazonaws.com/lobby/join/`,
-                                          payloadBody,
-                                          axiosConfig
-                                        )
-      this.lobbyCount = response.data.ResponseMetadata.HTTPStatusCode //return total players in lobby
-      } catch (e) {
-      console.log("joinLobby Error:", e)
-      }
+    JoinLobby: function () {
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          startGame: false,
+          "action": "lobby"
+        })
+      );
     },
-    async Start() {
-      this.$router.push('/components/GamePage')
+    StartGame: function () {
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          startGame: true,
+          "action": "lobby"
+        })
+      );
     }
+  },
+  created: function () {
+    console.log("Starting connection to WebSocket Server")
+    this.connection = new ReconnectingWebSocket("wss://aej0yks5r9.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection.debug = true;
+    this.connection.reconnectInterval = 4000;
+
+    this.connection.onmessage = function (event) {
+      let response = JSON.parse(event.data)
+      console.log("Event Recieved from server", response);
+      this.startGame = response.message.startGame
+      console.log("Start Game:", this.startGame)
+      this.lobbyCount = response.message.lobbyCount
+      console.log("Lobby Count:", this.lobbyCount)
+
+    }
+
+    this.connection.onopen = function (event) {
+      console.log(event)
+      console.log("Successfully connected to the echo websocket server...")
+    }
+
+    this.connection.onerror = function (err) {
+      console.error('Socket encountered error: ', err.message, 'Closing socket');
+      this.connection.close();
+    }
+  },
+  watch: function() {
+
   }
 }
+
 </script>
 
 <style scoped>
