@@ -283,9 +283,13 @@ export default {
 }
 
 #CandyKingdom {
-  position: relative;
-  bottom: 835px;
-  left: 253px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 1025px;
+  left: 285px;
   width: 75px;
   height: 75px;
 }
