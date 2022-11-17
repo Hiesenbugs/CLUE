@@ -55,7 +55,7 @@
     <div id="moveGrid">
       <div v-for="(row, idx1) in coord" v-bind:key="row">
         <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="{ 'background': 'grey' }" 
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
           @click="printToConsole(getGrid(idx1, idx2))">></button>
       </div>
     </div>
@@ -154,6 +154,38 @@ export default {
       this.xCoord = x;
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
+    },
+    getRoom(coord) {
+      if (coord == this.roomCoord[0]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[1]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[2]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[3]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[4]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[5]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[6]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[7]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[8]) {
+        return 1;
+      }
+      else {
+        return 0;
+      }
     },
     printToConsole: function (x) {
       console.log(x)
