@@ -15,45 +15,37 @@
     <div id="rollDice">
       <div :class="getDice"></div>
     </div>
-    <div>
-      <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
+    <div id="suggestAccuseButton">
+      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
     </div>
     <div id="suggestAccuseButton">
-      <button @click="Suggestion">Suggestion</button>
-    </div>
-    <div id="suggestAccuseButton">
-      <button @click="Accusation">Accusation</button>
+      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
     </div>
     <div id="selected">
-    <div id="selectedSuspect">
-      <div v-for="suspect in suspects" v-bind:key="suspect">
-        <input type="checkbox" :id="suspect" :value="suspect"
-          :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
-        <label :for="suspect">{{ suspect }}</label>
+      <div id="selectedSuspect">
+        <div v-for="suspect in suspects" v-bind:key="suspect">
+          <input type="checkbox" :id="suspect" :value="suspect"
+            :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
+          <label :for="suspect">{{ suspect }}</label>
+        </div>
+      </div>
+      <div id="selectedWeapon">
+        <div v-for="weapon in weapons" v-bind:key="weapon">
+          <input type="checkbox" :id="weapon" :value="weapon"
+            :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
+          <label :for="weapon">{{ weapon }}</label>
+        </div>
+      </div>
+      <div id="selectedRoom">
+        <div v-for="room in rooms" v-bind:key="room">
+          <input type="checkbox" :id="room.name" :value="room.name"
+            :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
+          <label :for="room.name">{{ room.name }}</label>
+        </div>
       </div>
     </div>
-    <div id="selectedWeapon">
-      <div v-for="weapon in weapons" v-bind:key="weapon">
-        <input type="checkbox" :id="weapon" :value="weapon"
-          :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
-        <label :for="weapon">{{ weapon }}</label>
-      </div>
-    </div>
-    <div id="selectedRoom">
-      <div v-for="room in rooms" v-bind:key="room">
-        <input type="checkbox" :id="room.name" :value="room.name"
-          :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
-        <label :for="room.name">{{ room.name }}</label>
-      </div>
-    </div>
-  </div>
-  <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
-    <div>
-      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
-        <img v-if="checkedRoom.length == 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
-        <figcaption> Bmo - Disprove Card </figcaption>
-      </figure>
-    </div>
+    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
+
     <div id="cardGrid">
       <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
         <img :src="require(`${hcard.asset}`)" width="50" height="50" />
@@ -63,8 +55,18 @@
     <div id="moveGrid">
       <div v-for="(row, idx1) in coord" v-bind:key="row">
         <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="[getGrid(idx1, idx2) ? { 'background': 'white' } : { 'background': 'red' }]">></button>
+          :style="{ 'background': 'grey' }" 
+          @click="printToConsole(getGrid(idx1, idx2))">></button>
       </div>
+    </div>
+    <div>
+      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
+        <img v-if="disproveCard.length != 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
+        <figcaption> {{ dcard.cardId }} - Disprove </figcaption>
+      </figure>
+    </div>
+    <div>
+      <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
     </div>
   </div>
 </template>
@@ -77,11 +79,11 @@ export default {
   data() {
     return {
       gameStateAlert: ["Game State"],
-      playerHand: [{ cardId: "BmoCard", asset: "./assets/bmo.png" },
+      playerHand: [{ cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
       { cardId: "BmoCard", asset: "./assets/bmo.png" },
-      { cardId: "BmoCard", asset: "./assets/bmo.png" },
-      { cardId: "BmoCard", asset: "./assets/bmo.png" }],
-      disproveCard: [{ cardId: "BmoCard", asset: "./assets/bmo.png" }],
+      { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
+      { cardId: "CottonCandyForestCard", asset: "./assets/Cotton_Candy_Forest.png" }],
+      disproveCard: [{ cardId: "DemonicWishingEyeCard", asset: "./assets/Demonic_Wishing_Eye.png" }],
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
@@ -142,6 +144,7 @@ export default {
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
       ],
+      roomCoord: ["c0-0", "c0-11", "c0-22", "c8-22", "c16-22", "c16-11", "c16-0", "c7-0", "c9-0"],
 
       xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
     };
@@ -154,6 +157,9 @@ export default {
     },
     printToConsole: function (x) {
       console.log(x)
+    },
+    printAccusationToConsole: function (a, b, c) {
+      console.log('Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c)
     },
     setRandomDiceData() {
       const randomDiceNum = Math.floor(Math.random() * 6) + 1;
@@ -185,6 +191,116 @@ export default {
 </script>
 
 <style scoped>
+#app {
+  width: 1700px;
+  margin: 0 auto;
+  position: absolute;
+}
+
+#title {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.turnButton {
+  position: relative;
+  top: 50px;
+  left: 0px;
+}
+
+#rollDice {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.dice {
+  display: inline-block;
+  min-height: 1em;
+  padding-left: 1em;
+  background-size: 1em;
+  background-repeat: no-repeat;
+  font-size: 3em;
+  position: relative;
+  top: 50px;
+  right: 750px;
+}
+
+#notebook {
+  width: 300px;
+  min-height: 72px;
+  padding: 2px;
+  resize: vertical;
+  overflow: hidden;
+  background-color: transparent;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-family: "Inconsolata", monospace;
+  font-size: 1rem;
+  color: #000;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  overflow-y: scroll;
+}
+
+#suggestAccuseButton {
+  position: relative;
+  display: inline-block;
+  padding-left: 165px;
+  bottom: 105px;
+  left: 800px;
+}
+
+#selected {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+  bottom: 100px;
+}
+
+#selectedSuspect {
+  position: absolute;
+  left: 900px;
+}
+
+#selectedWeapon {
+  position: absolute;
+  left: 1055px;
+}
+
+#selectedRoom {
+  position: absolute;
+  left: 1225px;
+}
+
+#gameStateAlert {
+  position: relative;
+  bottom: 975px;
+  left: 350px;
+}
+
+.card {
+  display: inline-block;
+  position: relative;
+  top: 650px;
+}
+
+#moveGrid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom: 10px;
+}
+
 #c0-0 {
   position: absolute;
   left: 500px;
@@ -257,120 +373,10 @@ export default {
   height: 80px;
 }
 
-#app {
-  width: 1700px;
-  margin: 0 auto;
-  position: absolute;
-}
-
-#title {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-.turnButton {
-  position: relative;
-  top: 50px;
-  left: 0px;
-}
-
-#rollDice {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.dice {
-  display: inline-block;
-  min-height: 1em;
-  padding-left: 1em;
-  background-size: 1em;
-  background-repeat: no-repeat;
-  font-size: 3em;
-  position: relative;
-  top: 50px;
-  right: 750px;
-}
-
-#notebook {
-  width: 300px;
-  min-height: 72px;
-  padding: 2px;
-  resize: vertical;
-  overflow: hidden;
-  background-color: transparent;
-  border: 2px solid #000;
-  border-radius: 4px;
-  font-family: "Inconsolata", monospace;
-  font-size: 1rem;
-  color: #000;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  overflow-y: scroll;
-}
-
-#suggestAccuseButton {
-  position: relative;
-  display: inline-block;
-  padding-left: 165px;
-  bottom: 105px;
-  left: 800px;
-}
-
-#selected{
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: top;
-  align-items: center;
-  bottom: 100px;
-}
-
-#selectedSuspect {
-  position: absolute;
-  left: 900px;
-}
-
-#selectedWeapon {
-  position: absolute;
-  left: 1055px;
-}
-
-#selectedRoom {
-  position: absolute;
-  left: 1225px;
-}
-
-#gameStateAlert {
-  position: relative;
-  bottom: 975px;
-  left: 350px;
-}
-
 #disproveCard {
   position: relative;
-  top: 450px;
-  left: 50px;
-}
-
-.card {
-  display: inline-block;
-  position: relative;
-  top: 520px;
-}
-
-#moveGrid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  bottom: 110px;
+  bottom: -105px;
+  left: 1100px;
 }
 
 .dice-1 {
