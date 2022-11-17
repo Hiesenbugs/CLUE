@@ -288,72 +288,72 @@ export default {
 
 #CandyKingdom {
   position: absolute;
-  bottom: 870px;
+  bottom: 722px;
   left: 253px;
   width: 75px;
   height: 75px;
 }
 
 #CottonCandyForest {
-  position: relative;
-  bottom: 845px;
-  left: 535px;
-  width: 75px;
+  position: absolute;
+  bottom: 722px;
+  left: 575px;
+  width: 150px;
   height: 75px;
 }
 
 #FireKingdom {
-  position: relative;
-  bottom: 835px;
-  left: 823px;
+  position: absolute;
+  bottom: 722px;
+  left: 973px;
   width: 75px;
   height: 75px;
 }
 
 #GlassKingdom {
-  position: relative;
-  bottom: 575px;
-  left: 748px;
+  position: absolute;
+  bottom: 405px;
+  left: 973px;
   width: 75px;
   height: 150px;
 }
 
 #IceKingdom {
-  position: relative;
-  bottom: 318px;
-  left: 673px;
+  position: absolute;
+  bottom: 208px;
+  left: 973px;
   width: 75px;
   height: 75px;
 }
 
 #LandoftheDead {
-  position: relative;
-  bottom: 318px;
-  left: 238px;
-  width: 75px;
+  position: absolute;
+  bottom: 208px;
+  left: 575px;
+  width: 150px;
   height: 75px;
 }
 
 #LumpySpace {
-  position: relative;
-  bottom: 318px;
-  right: 198px;
+  position: absolute;
+  bottom: 208px;
+  left: 253px;
   width: 75px;
   height: 75px;
 }
 
 #MysteryMountains {
-  position: relative;
-  bottom: 527px;
-  right: 275px;
+  position: absolute;
+  bottom: 413px;
+  left: 253px;
   width: 75px;
   height: 75px;
 }
 
 #TreeHouse {
-  position: relative;
-  bottom: 627px;
-  right: 350px;
+  position: absolute;
+  bottom: 517px;
+  left: 253px;
   width: 75px;
   height: 75px;
 }
@@ -361,7 +361,7 @@ export default {
 .card {
   display: inline-block;
   position: relative;
-  bottom: 350px;
+  bottom: 200px;
   left: 750px;
 }
 
