@@ -189,9 +189,8 @@ export default {
 <style scoped>
 #app {
   width: 1300px;
-  height: 1920px;
   margin: 0 auto;
-  position: relative;
+  position: absolute;
 }
 
 #title {
@@ -223,8 +222,8 @@ export default {
   background-repeat: no-repeat;
   font-size: 3em;
   position: relative;
-  top: 100px;
-  right: 500px;
+  top: 50px;
+  right: 550px;
 }
 
 #notebook {
@@ -246,13 +245,13 @@ export default {
 
 #suggestionButton {
   position: relative;
-  bottom: 95px;
+  bottom: 100px;
   left: 900px;
 }
 
 #accusationButton {
   position: relative;
-  bottom: 117px;
+  bottom: 122px;
   left: 1100px;
 }
 
@@ -274,98 +273,6 @@ export default {
   left: 1125px;
 }
 
-
-#gameStateAlert {
-  position: relative;
-  bottom: 1150px;
-  left: 350px;
-}
-
-.card {
-  display: inline-block;
-  position: relative;
-  bottom: 350px;
-  left: 750px;
-}
-
-#disproveCard {
-  position: relative;
-  bottom: 700px;
-  left: 1100px;
-}
-
-#CandyKingdom {
-  position: relative;
-  bottom: 835px;
-  left: 143px;
-  width: 75px;
-  height: 75px;
-}
-
-#CottonCandyForest {
-  position: relative;
-  bottom: 842px;
-  left: 540px;
-  width: 75px;
-  height: 75px;
-}
-
-#FireKingdom {
-  position: relative;
-  bottom: 835px;
-  left: 827px;
-  width: 75px;
-  height: 75px;
-}
-
-#GlassKingdom {
-  position: relative;
-  bottom: 575px;
-  left: 752px;
-  width: 75px;
-  height: 150px;
-}
-
-#IceKingdom {
-  position: relative;
-  bottom: 318px;
-  left: 677px;
-  width: 75px;
-  height: 75px;
-}
-
-#LandoftheDead {
-  position: relative;
-  bottom: 318px;
-  left: 242px;
-  width: 75px;
-  height: 75px;
-}
-
-#LumpySpace {
-  position: relative;
-  bottom: 318px;
-  right: 193px;
-  width: 75px;
-  height: 75px;
-}
-
-#MysteryMountains {
-  position: relative;
-  bottom: 527px;
-  right: 270px;
-  width: 75px;
-  height: 75px;
-}
-
-#TreeHouse {
-  position: relative;
-  bottom: 627px;
-  right: 345px;
-  width: 75px;
-  height: 75px;
-}
-
 #moveGrid {
   display: flex;
   flex-direction: column;
@@ -375,12 +282,96 @@ export default {
   bottom: 280px;
 }
 
+#CandyKingdom {
+  position: relative;
+  bottom: 835px;
+  left: 253px;
+  width: 75px;
+  height: 75px;
+}
 
+#CottonCandyForest {
+  position: relative;
+  bottom: 842px;
+  left: 535px;
+  width: 75px;
+  height: 75px;
+}
 
+#FireKingdom {
+  position: relative;
+  bottom: 835px;
+  left: 822px;
+  width: 75px;
+  height: 75px;
+}
 
+#GlassKingdom {
+  position: relative;
+  bottom: 575px;
+  left: 747px;
+  width: 75px;
+  height: 150px;
+}
 
+#IceKingdom {
+  position: relative;
+  bottom: 318px;
+  left: 672px;
+  width: 75px;
+  height: 75px;
+}
 
+#LandoftheDead {
+  position: relative;
+  bottom: 318px;
+  left: 237px;
+  width: 75px;
+  height: 75px;
+}
 
+#LumpySpace {
+  position: relative;
+  bottom: 318px;
+  right: 198px;
+  width: 75px;
+  height: 75px;
+}
+
+#MysteryMountains {
+  position: relative;
+  bottom: 527px;
+  right: 275px;
+  width: 75px;
+  height: 75px;
+}
+
+#TreeHouse {
+  position: relative;
+  bottom: 627px;
+  right: 350px;
+  width: 75px;
+  height: 75px;
+}
+
+.card {
+  display: inline-block;
+  position: relative;
+  bottom: 350px;
+  left: 750px;
+}
+
+#gameStateAlert {
+  position: relative;
+  bottom: 1150px;
+  left: 350px;
+}
+
+#disproveCard {
+  position: relative;
+  bottom: 700px;
+  left: 1100px;
+}
 
 .dice-1 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cg transform='translate(113.25%2C-494.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-406.5%2C374.7)'%3E%3Crect x='588' y='240.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(337.5%2C87.5)' cx='325' cy='227.4' r='12.5' style='fill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
