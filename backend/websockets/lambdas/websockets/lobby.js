@@ -31,7 +31,8 @@ function writeToTable(connectionId, message) {
         Item: {
             connectionId: connectionId,
             startGame: message.startGame,
-            userId: message.userId
+            userId: message.userId,
+            joinLobby: message.joinLobby
         }
     }).promise();
 }
@@ -41,10 +42,25 @@ exports.handler = (event, context, callback) => {
     let message = JSON.parse(event.body);
     const connectionId = event.requestContext.connectionId;
 
+
     writeToTable(connectionId, message).then(() => {
         getConnections().then((data) => {
-            message.lobbyCount = 2 // count of dynamodb table rows
-            message['startGame'] = false // union of all start game
+            console.log(data);
+
+            let startGame = true;
+            let startGameCount = 0;
+            let lobbyCount = 0;
+
+            data.Items.forEach(item => {
+                message.startGame = item.startGame && startGame
+                if (item.startGame) {
+                    message.startGameCount = ++startGameCount;
+                }
+                if (item.joinLobby) {
+                    message.lobbyCount = ++lobbyCount;
+                };// count of dynamodb table rows
+            });
+
             data.Items.forEach(function (connection) {
                 send(
                     connection.connectionId,
@@ -54,7 +70,7 @@ exports.handler = (event, context, callback) => {
                         }
                     ));
             });
-            callback(null, { statusCode: 200 })
+            callback(null, { statusCode: 200 });
         });
     });
 };

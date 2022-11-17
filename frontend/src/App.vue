@@ -4,15 +4,16 @@
     <h2>CLUELESS</h2>
     <div id="joinLobbyButton">
       <input v-model="this.userId" placeholder="Enter Name" />
-      <button :disabled="lobbyCount > 0" @click="JoinLobby">Join Lobby</button>
+      <button :disabled="lobbyCount > 3" @click="JoinLobby">Join Lobby</button>
     </div>
     <div id="startButton">
-      <button :disabled="lobbyCount != 2" @click="StartGame">Start</button>
+      <button :disabled="startGameCount === lobbyCount" @click="StartGame">Start</button>
     </div>
     <div id="playersInLobby">
       <!-- constant update on this -->
     <h2>Lobby Count: {{lobbyCount}} </h2>  
     <h2>Start Game: {{startGame}} </h2>  
+    <h2>Start Game Count: {{startGameCount}} </h2>  
 
     </div>
   </div>
@@ -27,7 +28,8 @@ export default {
       userId: '',
       websocketResponse: '',
       lobbyCount: '',
-      startGame: false
+      startGame: '',
+      startGameCount: ''
     }
   },
   methods: {
@@ -35,6 +37,7 @@ export default {
       this.connection.send(
         JSON.stringify({
           userId: this.userId,
+          joinLobby: true,
           startGame: false,
           "action": "lobby"
         })
@@ -44,6 +47,7 @@ export default {
       this.connection.send(
         JSON.stringify({
           userId: this.userId,
+          joinLobby: true,
           startGame: true,
           "action": "lobby"
         })
@@ -62,6 +66,8 @@ export default {
       this.startGame = response.message.startGame
       console.log("Start Game:", this.startGame)
       this.lobbyCount = response.message.lobbyCount
+      this.startGameCount = response.message.startGameCount
+
       console.log("Lobby Count:", this.lobbyCount)
     }
 
