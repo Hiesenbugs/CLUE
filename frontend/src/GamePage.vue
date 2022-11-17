@@ -282,21 +282,21 @@ export default {
   bottom: 280px;
 }
 
+#roomGrid {
+  position: relative;
+}
+
 #CandyKingdom {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   position: absolute;
-  bottom: 1025px;
-  left: 285px;
+  bottom: 870px;
+  left: 253px;
   width: 75px;
   height: 75px;
 }
 
 #CottonCandyForest {
   position: relative;
-  bottom: 842px;
+  bottom: 845px;
   left: 535px;
   width: 75px;
   height: 75px;
@@ -305,7 +305,7 @@ export default {
 #FireKingdom {
   position: relative;
   bottom: 835px;
-  left: 822px;
+  left: 823px;
   width: 75px;
   height: 75px;
 }
@@ -313,7 +313,7 @@ export default {
 #GlassKingdom {
   position: relative;
   bottom: 575px;
-  left: 747px;
+  left: 748px;
   width: 75px;
   height: 150px;
 }
@@ -321,7 +321,7 @@ export default {
 #IceKingdom {
   position: relative;
   bottom: 318px;
-  left: 672px;
+  left: 673px;
   width: 75px;
   height: 75px;
 }
@@ -329,7 +329,7 @@ export default {
 #LandoftheDead {
   position: relative;
   bottom: 318px;
-  left: 237px;
+  left: 238px;
   width: 75px;
   height: 75px;
 }
