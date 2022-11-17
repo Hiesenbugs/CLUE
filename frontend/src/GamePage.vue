@@ -3,6 +3,7 @@
     <div id="title">
       <h1>Adventure Time Clue!</h1>
     </div>
+    <div id="gameStateAlert">Game State: {{ location }}</div>
     <div class="turnButton">
       <button @click="Move">Move</button>
     </div>
@@ -44,8 +45,6 @@
         </div>
       </div>
     </div>
-    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
-
     <div id="cardGrid">
       <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
         <img :src="require(`${hcard.asset}`)" width="50" height="50" />
@@ -56,7 +55,7 @@
       <div v-for="(row, idx1) in coord" v-bind:key="row">
         <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
           :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
-          @click="printToConsole(getGrid(idx1, idx2))">></button>
+          @click="broadcastMessage(getGrid(idx1, idx2))">></button>
       </div>
     </div>
     <div>
@@ -72,7 +71,7 @@
 </template>
 
 <script>
-//import axios from 'axios';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 export default {
   name: "App",
@@ -145,6 +144,7 @@ export default {
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
       ],
       roomCoord: ["c0-0", "c0-11", "c0-22", "c8-22", "c16-22", "c16-11", "c16-0", "c7-0", "c9-0"],
+      location: [],
 
       xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
     };
@@ -206,6 +206,38 @@ export default {
         }
         count += 1;
       }, 150);
+    },
+    broadcastMessage: function (coord) {
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          location: coord,
+          "action": "game"
+        })
+      );
+    }
+  },
+  created: function () {
+    console.log("Starting connection to WebSocket Server")
+    this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection.debug = true;
+    this.connection.reconnectInterval = 4000;
+
+    this.connection.onmessage = (event) => {
+      let response = JSON.parse(event.data)
+      console.log("Event Recieved from server", response);
+      this.location = response.message.location
+      console.log("Location:", this.location)
+    }
+
+    this.connection.onopen = (event) => {
+      console.log(event)
+      console.log("Successfully connected to the echo websocket server...")
+    }
+
+    this.connection.onerror = function (err) {
+      console.error('Socket encountered error: ', err.message, 'Closing socket');
+      this.connection.close();
     }
   },
   computed: {
@@ -235,6 +267,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+#gameStateAlert {
+  position: relative;
+  top: 75px;
+  left: 350px;
 }
 
 .turnButton {
@@ -312,12 +350,6 @@ export default {
   left: 1225px;
 }
 
-#gameStateAlert {
-  position: relative;
-  bottom: 975px;
-  left: 350px;
-}
-
 .card {
   display: inline-block;
   position: relative;
@@ -335,8 +367,8 @@ export default {
 
 #c0-0 {
   position: absolute;
-  left: 500px;
-  top: -55px;
+  left: 565px;
+  top: -60px;
   width: 80px;
   height: 80px;
 }
@@ -351,24 +383,24 @@ export default {
 
 #c0-22 {
   position: absolute;
-  right: 500px;
-  top: -55px;
+  right: 565px;
+  top: -60px;
   width: 80px;
   height: 80px;
 }
 
 #c8-22 {
   position: absolute;
-  right: 472px;
-  top: 181px;
+  right: 535px;
+  top: 147px;
   width: 80px;
   height: 80px;
 }
 
 #c16-22 {
   position: absolute;
-  right: 500px;
-  bottom: -55px;
+  right: 565px;
+  bottom: -60px;
   width: 80px;
   height: 80px;
 }
@@ -383,15 +415,15 @@ export default {
 
 #c16-0 {
   position: absolute;
-  left: 500px;
-  bottom: -55px;
+  left: 565px;
+  bottom: -60px;
   width: 80px;
   height: 80px;
 }
 
 #c7-0 {
   position: absolute;
-  left: 460px;
+  left: 535px;
   top: 100px;
   width: 80px;
   height: 80px;
@@ -399,7 +431,7 @@ export default {
 
 #c9-0 {
   position: absolute;
-  left: 460px;
+  left: 535px;
   bottom: 100px;
   width: 80px;
   height: 80px;
@@ -407,7 +439,7 @@ export default {
 
 #disproveCard {
   position: relative;
-  bottom: -105px;
+  bottom: -165px;
   left: 1100px;
 }
 

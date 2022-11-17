@@ -30,7 +30,8 @@ function writeToTable(connectionId, message) {
         TableName: gameTableName,
         Item: {
             connectionId: connectionId,
-            messageType: message.message
+            userId: message.userId,
+            location: message.location
         }
     }).promise();
 }
@@ -40,12 +41,21 @@ exports.handler = (event, context, callback) => {
     let message = JSON.parse(event.body);
     const connectionId = event.requestContext.connectionId;
 
+
     writeToTable(connectionId, message).then(() => {
         getConnections().then((data) => {
+            console.log(data);
+
             data.Items.forEach(function (connection) {
-                send(connection.connectionId, JSON.stringify({ message: message.message}));
+                send(
+                    connection.connectionId,
+                    JSON.stringify(
+                        {
+                            message: message
+                        }
+                    ));
             });
-            callback(null, { statusCode: 200 })
+            callback(null, { statusCode: 200 });
         });
     });
 };

@@ -4,16 +4,15 @@
     <h2>CLUELESS</h2>
     <div id="joinLobbyButton">
       <input v-model="this.userId" placeholder="Enter Name" />
-      <button :disabled="lobbyCount > 3" @click="JoinLobby">Join Lobby</button>
+      <button :disabled="lobbyJoined" @click="JoinLobby">Join Lobby</button>
     </div>
     <div id="startButton">
-      <button :disabled="startGameCount === lobbyCount" @click="StartGame">Start</button>
+      <button :disabled="lobbyCount < 4" @click="StartGame">Start</button>
     </div>
     <div id="playersInLobby">
       <!-- constant update on this -->
     <h2>Lobby Count: {{lobbyCount}} </h2>  
-    <h2>Start Game: {{startGame}} </h2>  
-    <h2>Start Game Count: {{startGameCount}} </h2>  
+    <h2>Start: {{startGame}} </h2> 
 
     </div>
   </div>
@@ -29,16 +28,16 @@ export default {
       websocketResponse: '',
       lobbyCount: '',
       startGame: '',
-      startGameCount: ''
+      lobbyJoined: false
     }
   },
   methods: {
     JoinLobby: function () {
+      this.lobbyJoined = true;
       this.connection.send(
         JSON.stringify({
           userId: this.userId,
           joinLobby: true,
-          startGame: false,
           "action": "lobby"
         })
       );
@@ -56,7 +55,7 @@ export default {
   },
   created: function () {
     console.log("Starting connection to WebSocket Server")
-    this.connection = new ReconnectingWebSocket("wss://aej0yks5r9.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
     this.connection.debug = true;
     this.connection.reconnectInterval = 4000;
 
@@ -66,7 +65,6 @@ export default {
       this.startGame = response.message.startGame
       console.log("Start Game:", this.startGame)
       this.lobbyCount = response.message.lobbyCount
-      this.startGameCount = response.message.startGameCount
 
       console.log("Lobby Count:", this.lobbyCount)
     }

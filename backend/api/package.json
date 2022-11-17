@@ -16,11 +16,9 @@
     "url": "https://github.com/Hiesenbugs/CLUE/issues"
   },
   "homepage": "https://github.com/Hiesenbugs/CLUE#readme",
-  "dependencies": {
-    "serverless-wsgi": "^3.0.1"
-  },
   "devDependencies": {
     "serverless-python-requirements": "^6.0.0",
-    "serverless-websockets-plugin": "^1.0.0"
+    "serverless-websockets-plugin": "^1.0.0",
+    "serverless-wsgi": "^3.0.1"
   }
 }
