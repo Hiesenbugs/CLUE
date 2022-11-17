@@ -24,6 +24,7 @@
     <div id="suggestAccuseButton">
       <button @click="Accusation">Accusation</button>
     </div>
+    <div id="selected">
     <div id="selectedSuspect">
       <div v-for="suspect in suspects" v-bind:key="suspect">
         <input type="checkbox" :id="suspect" :value="suspect"
@@ -45,28 +46,25 @@
         <label :for="room.name">{{ room.name }}</label>
       </div>
     </div>
-    <div id="moveGrid">
-      <div v-for="(row, idx1) in coord" v-bind:key="row">
-        <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="[getGrid(idx1, idx2) ? { 'background': 'white' } : { 'background': 'red' }]">></button>
-      </div>
-    </div>
-    <div id="roomGrid">
-      <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name
-      }}</button>
+  </div>
+  <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
+    <div>
+      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
+        <img v-if="checkedRoom.length == 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
+        <figcaption> Bmo - Disprove Card </figcaption>
+      </figure>
     </div>
     <div id="cardGrid">
       <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
         <img :src="require(`${hcard.asset}`)" width="50" height="50" />
-        <figcaption> {{ hcard.cardId }} </figcaption>
+        <figcaption> {{ hcard.cardId }} - Hand </figcaption>
       </figure>
     </div>
-    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
-    <div>
-      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
-        <img v-if="checkedRoom.length == 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
-        <figcaption> Bmo Card Sample </figcaption>
-      </figure>
+    <div id="moveGrid">
+      <div v-for="(row, idx1) in coord" v-bind:key="row">
+        <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
+          :style="[getGrid(idx1, idx2) ? { 'background': 'white' } : { 'background': 'red' }, {'border' : '2px solid black'}]">></button>
+      </div>
     </div>
   </div>
 </template>
@@ -126,23 +124,23 @@ export default {
       { cardId: "LumpySpaceCard", asset: "./assets/Lumpy_Space.png" },
       { cardId: "MysteryMountainsCard", asset: "./assets/Mystery_Mountains.png" },
       { cardId: "TreeHouseCard", asset: "./assets/TreeHouseINT.png" }],
-      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
       ],
 
       xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
@@ -189,21 +187,78 @@ export default {
 <style scoped>
 #c0-0 {
   position: absolute;
-  left: 275px;
-  top: -50px;
-  width: 75px;
-  height: 75px;
+  left: 500px;
+  top: -55px;
+  width: 80px;
+  height: 80px;
 }
-#c0-23 {
+
+#c0-11 {
   position: absolute;
-  right: 275px;
-  top: -50px;
-  width: 75px;
-  height: 75px;
+  right: 810px;
+  top: -80px;
+  width: 80px;
+  height: 80px;
+}
+
+#c0-22 {
+  position: absolute;
+  right: 500px;
+  top: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c8-22 {
+  position: absolute;
+  right: 472px;
+  top: 181px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-22 {
+  position: absolute;
+  right: 500px;
+  bottom: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-11 {
+  position: absolute;
+  right: 810px;
+  bottom: -80px;
+  width: 80px;
+  height: 80px;
+}
+
+#c16-0 {
+  position: absolute;
+  left: 500px;
+  bottom: -55px;
+  width: 80px;
+  height: 80px;
+}
+
+#c7-0 {
+  position: absolute;
+  left: 460px;
+  top: 100px;
+  width: 80px;
+  height: 80px;
+}
+
+#c9-0 {
+  position: absolute;
+  left: 460px;
+  bottom: 100px;
+  width: 80px;
+  height: 80px;
 }
 
 #app {
-  width: 1300px;
+  width: 1700px;
   margin: 0 auto;
   position: absolute;
 }
@@ -238,14 +293,14 @@ export default {
   font-size: 3em;
   position: relative;
   top: 50px;
-  right: 550px;
+  right: 750px;
 }
 
 #notebook {
   width: 300px;
   min-height: 72px;
   padding: 2px;
-  resize: none;
+  resize: vertical;
   overflow: hidden;
   background-color: transparent;
   border: 2px solid #000;
@@ -256,125 +311,39 @@ export default {
   position: absolute;
   top: 0px;
   right: 0px;
+  overflow-y: scroll;
 }
 
 #suggestAccuseButton {
   position: relative;
   display: inline-block;
-  padding-left: 65px;
-  bottom: 115px;
-  left: 900px;
-}
-
-#selectedSuspect {
-  position: relative;
-  bottom: 110px;
+  padding-left: 165px;
+  bottom: 105px;
   left: 800px;
 }
 
-#selectedWeapon {
+#selected{
   position: relative;
-  bottom: 190px;
-  left: 955px;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+  bottom: 100px;
+}
+
+#selectedSuspect {
+  position: absolute;
+  left: 900px;
+}
+
+#selectedWeapon {
+  position: absolute;
+  left: 1055px;
 }
 
 #selectedRoom {
-  position: relative;
-  bottom: 305px;
-  left: 1125px;
-}
-
-#moveGrid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  bottom: 240px;
-}
-
-#roomGrid {
-  position: relative;
-  top: 40px;
-}
-
-#CandyKingdom {
   position: absolute;
-  bottom: 722px;
-  left: 253px;
-  width: 75px;
-  height: 75px;
-}
-
-#CottonCandyForest {
-  position: absolute;
-  bottom: 722px;
-  left: 575px;
-  width: 150px;
-  height: 75px;
-}
-
-#FireKingdom {
-  position: absolute;
-  bottom: 722px;
-  left: 973px;
-  width: 75px;
-  height: 75px;
-}
-
-#GlassKingdom {
-  position: absolute;
-  bottom: 405px;
-  left: 973px;
-  width: 75px;
-  height: 150px;
-}
-
-#IceKingdom {
-  position: absolute;
-  bottom: 208px;
-  left: 973px;
-  width: 75px;
-  height: 75px;
-}
-
-#LandoftheDead {
-  position: absolute;
-  bottom: 208px;
-  left: 575px;
-  width: 150px;
-  height: 75px;
-}
-
-#LumpySpace {
-  position: absolute;
-  bottom: 208px;
-  left: 253px;
-  width: 75px;
-  height: 75px;
-}
-
-#MysteryMountains {
-  position: absolute;
-  bottom: 413px;
-  left: 253px;
-  width: 75px;
-  height: 75px;
-}
-
-#TreeHouse {
-  position: absolute;
-  bottom: 517px;
-  left: 253px;
-  width: 75px;
-  height: 75px;
-}
-
-.card {
-  display: inline-block;
-  position: relative;
-  bottom: 160px;
-  left: 750px;
+  left: 1225px;
 }
 
 #gameStateAlert {
@@ -385,8 +354,23 @@ export default {
 
 #disproveCard {
   position: relative;
-  bottom: 700px;
-  left: 1100px;
+  top: 450px;
+  left: 50px;
+}
+
+.card {
+  display: inline-block;
+  position: relative;
+  top: 520px;
+}
+
+#moveGrid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom: 110px;
 }
 
 .dice-1 {
