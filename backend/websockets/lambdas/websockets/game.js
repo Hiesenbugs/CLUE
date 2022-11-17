@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const ddb = new AWS.DynamoDB.DocumentClient();
 
 let apiGatewayManagementApi;
-const lobbyTableName = process.env.lobbyTableName;
+const gameTableName = process.env.gameTableName;
 const apiVersion = '2018-11-29';
 
 function initApiGatewayManagementApi(event) {
@@ -22,33 +22,31 @@ async function send(connectionId, data) {
 }
 
 function getConnections() {
-    return ddb.scan({ TableName: lobbyTableName }).promise();
+    return ddb.scan({ TableName: gameTableName }).promise();
 }
 
 function writeToTable(connectionId, message) {
     return ddb.put({
-        TableName: lobbyTableName,
+        TableName: gameTableName,
         Item: {
             connectionId: connectionId,
-            message: message
+            messageType: message.message
         }
     }).promise();
 }
 
 exports.handler = (event, context, callback) => {
     initApiGatewayManagementApi(event);
-    let message = JSON.stringify({ message: JSON.parse(event.body).message.message });
+    let message = JSON.parse(event.body);
     const connectionId = event.requestContext.connectionId;
 
     writeToTable(connectionId, message).then(() => {
-        callback(null, { statusCode: 200 });
-    });
-
-    getConnections().then((data) => {
-        data.Items.forEach(function (connection) {
-            send(connection.connectionId, message);
+        getConnections().then((data) => {
+            data.Items.forEach(function (connection) {
+                send(connection.connectionId, JSON.stringify({ message: message.message}));
+            });
+            callback(null, { statusCode: 200 })
         });
-        callback(null, { statusCode: 200 })
     });
 };
 

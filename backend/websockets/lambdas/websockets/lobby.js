@@ -30,25 +30,48 @@ function writeToTable(connectionId, message) {
         TableName: lobbyTableName,
         Item: {
             connectionId: connectionId,
-            message: message
+            startGame: message.startGame,
+            userId: message.userId,
+            joinLobby: message.joinLobby
         }
     }).promise();
 }
 
 exports.handler = (event, context, callback) => {
     initApiGatewayManagementApi(event);
-    let message = JSON.stringify({ message: JSON.parse(event.body).message.message });
+    let message = JSON.parse(event.body);
     const connectionId = event.requestContext.connectionId;
 
-    writeToTable(connectionId, message).then(() => {
-        callback(null, { statusCode: 200 });
-    });
 
-    getConnections().then((data) => {
-        data.Items.forEach(function (connection) {
-            send(connection.connectionId, message);
+    writeToTable(connectionId, message).then(() => {
+        getConnections().then((data) => {
+            console.log(data);
+
+            let startGame = true;
+            let startGameCount = 0;
+            let lobbyCount = 0;
+
+            data.Items.forEach(item => {
+                message.startGame = item.startGame && startGame
+                if (item.startGame) {
+                    message.startGameCount = ++startGameCount;
+                }
+                if (item.joinLobby) {
+                    message.lobbyCount = ++lobbyCount;
+                };// count of dynamodb table rows
+            });
+
+            data.Items.forEach(function (connection) {
+                send(
+                    connection.connectionId,
+                    JSON.stringify(
+                        {
+                            message: message
+                        }
+                    ));
+            });
+            callback(null, { statusCode: 200 });
         });
-        callback(null, { statusCode: 200 })
     });
 };
 
