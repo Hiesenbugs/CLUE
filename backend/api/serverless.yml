@@ -24,25 +24,14 @@ provider:
   name: aws
   runtime: python3.9
   stage: dev
-  websocketApiRouteSelectionExpression: $request.body.action
   iam:
     role:
       statements:
         - Effect: Allow
           Action:
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
+            - "*"
           Resource:
-            - Fn::GetAtt: [ LobbyTable, Arn ]
-            - Fn::GetAtt: [ BoardTable, Arn ]
-            - Fn::GetAtt: [ GameTable, Arn ]
-            - Fn::GetAtt: [ DetectiveLogTable, Arn ]
-            - Fn::GetAtt: [ ActiveGamesTable, Arn ]
-            - Fn::GetAtt: [ ChatHistoryTable, Arn ]
+            - "*"
 
   environment:
     LOBBY_TABLE: ${self:custom.lobbyTableName}
@@ -67,25 +56,6 @@ functions:
     events:
       - httpApi: '*'
 
-  connectionHandler:
-    handler: src/handler.handler
-    events:
-      - websocket:
-          routeKey: $connect
-      - websocket:
-          routeKey: $disconnect
-  defaultHandler:
-    events:
-      - websocket:
-          routeKey: $default
-  actionHandler:
-    events:
-      - websocket:
-          routeKey: myAction
-
-
-
-
 
 resources:
   Resources:
@@ -93,10 +63,10 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: connectionId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: connectionId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -118,16 +88,30 @@ resources:
     GameTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: ${self:custom.gameTableName}
         AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: gameId
+            AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: connectionId
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        TableName: ${self:custom.gameTableName}
+        GlobalSecondaryIndexes:
+          - IndexName: GameIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: gameId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        BillingMode: PAY_PER_REQUEST
     DetectiveLogTable:
       Type: AWS::DynamoDB::Table
       Properties:
