@@ -18,10 +18,10 @@
     <div>
       <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
     </div>
-    <div id="suggestionButton">
+    <div id="suggestAccuseButton">
       <button @click="Suggestion">Suggestion</button>
     </div>
-    <div id="accusationButton">
+    <div id="suggestAccuseButton">
       <button @click="Accusation">Accusation</button>
     </div>
     <div id="selectedSuspect">
@@ -243,16 +243,12 @@ export default {
   right: 0px;
 }
 
-#suggestionButton {
+#suggestAccuseButton {
   position: relative;
-  bottom: 100px;
+  display: inline-block;
+  padding-left: 65px;
+  bottom: 115px;
   left: 900px;
-}
-
-#accusationButton {
-  position: relative;
-  bottom: 122px;
-  left: 1100px;
 }
 
 #selectedSuspect {
@@ -269,7 +265,7 @@ export default {
 
 #selectedRoom {
   position: relative;
-  bottom: 307px;
+  bottom: 305px;
   left: 1125px;
 }
 
@@ -279,11 +275,12 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
-  bottom: 280px;
+  bottom: 240px;
 }
 
 #roomGrid {
   position: relative;
+  top: 40px;
 }
 
 #CandyKingdom {
@@ -361,13 +358,13 @@ export default {
 .card {
   display: inline-block;
   position: relative;
-  bottom: 200px;
+  bottom: 160px;
   left: 750px;
 }
 
 #gameStateAlert {
   position: relative;
-  bottom: 1150px;
+  bottom: 975px;
   left: 350px;
 }
 
