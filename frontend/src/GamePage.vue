@@ -3,18 +3,10 @@
     <div id="title">
       <h1>Adventure Time Clue!</h1>
     </div>
-    <div id="gameStateAlert">Game State: {{ location }}</div>
-    <div class="turnButton">
-      <button @click="Move">Move</button>
-    </div>
+    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
     <div class="turnButton">
       <button @click="EndTurn">End Turn</button>
-    </div>
-    <div class="turnButton">
-      <button @click="setDice">Roll Dice</button>
-    </div>
-    <div id="rollDice">
-      <div :class="getDice"></div>
     </div>
     <div id="suggestAccuseButton">
       <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
@@ -45,23 +37,21 @@
         </div>
       </div>
     </div>
+    <div id="moveGrid">
+      <div v-for="(row, idx1) in coord" v-bind:key="row">
+        <button class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
+          @click="broadcastMessage(getGrid(idx1, idx2))">></button>
+      </div>
+    </div>
     <div id="cardGrid">
       <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
         <img :src="require(`${hcard.asset}`)" width="50" height="50" />
         <figcaption> {{ hcard.cardId }} - Hand </figcaption>
       </figure>
-    </div>
-    <div id="moveGrid">
-      <div v-for="(row, idx1) in coord" v-bind:key="row">
-        <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
-          @click="broadcastMessage(getGrid(idx1, idx2))">></button>
-      </div>
-    </div>
-    <div>
       <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
         <img v-if="disproveCard.length != 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
-        <figcaption> {{ dcard.cardId }} - Disprove </figcaption>
+        <figcaption v-if="disproveCard.length != 0"> {{ dcard.cardId }} - Disprove </figcaption>
       </figure>
     </div>
     <div>
@@ -77,7 +67,7 @@ export default {
   name: "App",
   data() {
     return {
-      gameStateAlert: ["Game State"],
+      gameStateAlert: [],
       playerHand: [{ cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
       { cardId: "BmoCard", asset: "./assets/bmo.png" },
       { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
@@ -125,28 +115,14 @@ export default {
       { cardId: "LumpySpaceCard", asset: "./assets/Lumpy_Space.png" },
       { cardId: "MysteryMountainsCard", asset: "./assets/Mystery_Mountains.png" },
       { cardId: "TreeHouseCard", asset: "./assets/TreeHouseINT.png" }],
-      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+      coord: [[0, 1, 2, 3, 4],
+      [0, 1, 2, 3, 4],
+      [0, 1, 2, 3, 4],
+      [0, 1, 2, 3, 4],
+      [0, 1, 2, 3, 4],
       ],
-      roomCoord: ["c0-0", "c0-11", "c0-22", "c8-22", "c16-22", "c16-11", "c16-0", "c7-0", "c9-0"],
-      location: [],
-
-      xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
+      roomCoord: ["c0-0", "c0-2", "c0-4", "c2-4", "c4-4", "c4-2", "c4-0", "c2-0", "c2-2"],
+      playerLocation: ["c2-2"],
     };
   },
   methods: {
@@ -226,8 +202,9 @@ export default {
     this.connection.onmessage = (event) => {
       let response = JSON.parse(event.data)
       console.log("Event Recieved from server", response);
-      this.location = response.message.location
-      console.log("Location:", this.location)
+      this.playerLocation = response.message.location
+      this.gameStateAlert = 'Player has moved to ' + response.message.location
+      console.log("Location:", this.playerLocation)
     }
 
     this.connection.onopen = (event) => {
@@ -275,29 +252,16 @@ export default {
   left: 350px;
 }
 
+#playerLocation {
+  position: relative;
+  top: 75px;
+  left: 350px;
+}
+
 .turnButton {
   position: relative;
   top: 50px;
-  left: 0px;
-}
-
-#rollDice {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.dice {
-  display: inline-block;
-  min-height: 1em;
-  padding-left: 1em;
-  background-size: 1em;
-  background-repeat: no-repeat;
-  font-size: 3em;
-  position: relative;
-  top: 50px;
-  right: 750px;
+  left: 100px;
 }
 
 #notebook {
@@ -322,7 +286,7 @@ export default {
   position: relative;
   display: inline-block;
   padding-left: 165px;
-  bottom: 105px;
+  bottom: 55px;
   left: 800px;
 }
 
@@ -332,7 +296,7 @@ export default {
   flex-direction: column;
   justify-content: top;
   align-items: center;
-  bottom: 100px;
+  bottom: 50px;
 }
 
 #selectedSuspect {
@@ -350,10 +314,20 @@ export default {
   left: 1225px;
 }
 
+#cardGrid {
+  display: inline-block;
+}
+
 .card {
   display: inline-block;
   position: relative;
-  top: 650px;
+  top: 250px;
+}
+
+#disproveCard {
+  position: relative;
+  bottom: -140px;
+  left: 1100px;
 }
 
 #moveGrid {
@@ -362,110 +336,42 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
-  bottom: 10px;
+  top: 130px;
 }
 
-#c0-0 {
-  position: absolute;
-  left: 565px;
-  top: -60px;
-  width: 80px;
+.grid {
   height: 80px;
-}
-
-#c0-11 {
-  position: absolute;
-  right: 810px;
-  top: -80px;
   width: 80px;
-  height: 80px;
 }
 
-#c0-22 {
-  position: absolute;
-  right: 565px;
-  top: -60px;
-  width: 80px;
-  height: 80px;
+#c0-0:after {
+  content: 'Candy Kingdom';
+}
+#c0-2:after {
+  content: 'Cotton Candy Forest';
+}
+#c0-4:after {
+  content: 'Fire Kingdom';
+}
+#c2-4:after {
+  content: 'Glass Kingdom';
+}
+#c4-4:after {
+  content: 'Ice Kingdom';
+}
+#c4-2:after {
+  content: 'Land of the Dead';
+}
+#c4-0:after {
+  content: 'Lumpy Space';
+}
+#c2-0:after {
+  content: 'Mystery Mountains';
+}
+#c2-2:after {
+  content: 'Tree House';
 }
 
-#c8-22 {
-  position: absolute;
-  right: 535px;
-  top: 147px;
-  width: 80px;
-  height: 80px;
-}
-
-#c16-22 {
-  position: absolute;
-  right: 565px;
-  bottom: -60px;
-  width: 80px;
-  height: 80px;
-}
-
-#c16-11 {
-  position: absolute;
-  right: 810px;
-  bottom: -80px;
-  width: 80px;
-  height: 80px;
-}
-
-#c16-0 {
-  position: absolute;
-  left: 565px;
-  bottom: -60px;
-  width: 80px;
-  height: 80px;
-}
-
-#c7-0 {
-  position: absolute;
-  left: 535px;
-  top: 100px;
-  width: 80px;
-  height: 80px;
-}
-
-#c9-0 {
-  position: absolute;
-  left: 535px;
-  bottom: 100px;
-  width: 80px;
-  height: 80px;
-}
-
-#disproveCard {
-  position: relative;
-  bottom: -165px;
-  left: 1100px;
-}
-
-.dice-1 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cg transform='translate(113.25%2C-494.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-406.5%2C374.7)'%3E%3Crect x='588' y='240.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(337.5%2C87.5)' cx='325' cy='227.4' r='12.5' style='fill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
-}
-
-.dice-2 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(109.9%2C-505.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-415.6%2C485.6)'%3E%3Crect x='613' y='40.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(326.5%2C-148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(398.5%2C-76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
-}
-
-.dice-3 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(84.9%2C-515.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-290.6%2C514.9)'%3E%3Crect x='413' y='2.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(126.5%2C-186)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(198.5%2C-114)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(162.5%2C-150)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
-}
-
-.dice-4 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(90.7%2C-499.7)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-302.7%2C367.8)'%3E%3Crect x='425.5' y='265.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(139%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(139%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
-}
-
-.dice-5 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(89.2%2C-510.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-194.9%2C372.3)'%3E%3Crect x='213' y='277.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-73.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-73.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-37.5%2C125)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
-}
-
-.dice-6 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(86.2%2C-500.6)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-98.2%2C356.2)'%3E%3Crect x='25.5' y='290.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-261%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
-}
 </style>
 
 <!--  
