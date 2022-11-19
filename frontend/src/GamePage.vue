@@ -3,16 +3,16 @@
     <div id="title">
       <h1>Adventure Time Clue!</h1>
     </div>
-    <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
+    <div id="gameStateAlert" style="white-space: pre;">Game State: {{ gameStateAlert }}</div>
     <div id="playerLocation">Player Location: {{ playerLocation }}</div>
     <div class="turnButton">
       <button @click="EndTurn">End Turn</button>
     </div>
     <div id="suggestAccuseButton">
-      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
+      <button @click="suggest(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
     </div>
     <div id="suggestAccuseButton">
-      <button @click="printAccusationToConsole(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
+      <button @click="accuse(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
     </div>
     <div id="selected">
       <div id="selectedSuspect">
@@ -31,17 +31,16 @@
       </div>
       <div id="selectedRoom">
         <div v-for="room in rooms" v-bind:key="room">
-          <input type="checkbox" :id="room.name" :value="room.name"
-            :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
-          <label :for="room.name">{{ room.name }}</label>
+          <input type="checkbox" :id="room" :value="room"
+            :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room) === -1" v-model="checkedRoom">
+          <label :for="room">{{ room }}</label>
         </div>
       </div>
     </div>
     <div id="moveGrid">
-      <div v-for="(row, idx1) in coord" v-bind:key="row">
-        <button class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'background': 'grey' } : { 'background': 'orange' }]"
-          @click="broadcastMessage(getGrid(idx1, idx2))">></button>
+      <div v-for="(row, idx1) in grid" v-bind:key="row">
+        <input type="image" class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
+          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)" width="80" height="80" />
       </div>
     </div>
     <div id="cardGrid">
@@ -49,9 +48,9 @@
         <img :src="require(`${hcard.asset}`)" width="50" height="50" />
         <figcaption> {{ hcard.cardId }} - Hand </figcaption>
       </figure>
-      <figure id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
-        <img v-if="disproveCard.length != 0" :src="require(`${dcard.asset}`)" width="50" height="50" />
-        <figcaption v-if="disproveCard.length != 0"> {{ dcard.cardId }} - Disprove </figcaption>
+      <figure class="card" id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
+        <img v-if="disprove" :src="require(`${dcard.asset}`)" width="50" height="50" />
+        <figcaption v-if="disprove"> {{ dcard.cardId }} - Disprove </figcaption>
       </figure>
     </div>
     <div>
@@ -68,15 +67,15 @@ export default {
   data() {
     return {
       gameStateAlert: [],
-      playerHand: [{ cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
-      { cardId: "BmoCard", asset: "./assets/bmo.png" },
-      { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
-      { cardId: "CottonCandyForestCard", asset: "./assets/Cotton_Candy_Forest.png" }],
-      disproveCard: [{ cardId: "DemonicWishingEyeCard", asset: "./assets/Demonic_Wishing_Eye.png" }],
+      playerHand: [{ cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
+      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
+      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
+      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" }],
+      disproveCard: [{ cardId: "Bmo", asset: "./assets/bmo.png" }],
+      disprove: true,
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
-      diceNum: 1,
       suspects: ["Bmo",
         "Finn",
         "Jake",
@@ -87,42 +86,40 @@ export default {
         "Finn Sword",
         "Gauntlet",
         "Mushroom Bomb"],
-      rooms: [{ roomId: "CandyKingdom", name: "Candy Kingdom" },
-      { roomId: "CottonCandyForest", name: "Cotton Candy Forest" },
-      { roomId: "FireKingdom", name: "Fire Kingdom" },
-      { roomId: "GlassKingdom", name: "Glass Kingdom" },
-      { roomId: "IceKingdom", name: "Ice Kingdom" },
-      { roomId: "LandoftheDead", name: "Land of the Dead" },
-      { roomId: "LumpySpace", name: "Lumpy Space" },
-      { roomId: "MysteryMountains", name: "Mystery Mountains" },
-      { roomId: "TreeHouse", name: "Tree House" }],
-      cards: [{ cardId: "BmoCard", asset: "./assets/bmo.png" },
-      { cardId: "FinnCard", asset: "./assets/finn.png" },
-      { cardId: "JakeCard", asset: "./assets/jake.png" },
-      { cardId: "PrincessBubblegumCard", asset: "./assets/princess_bubblegum.png" },
-      { cardId: "AxeBassCard", asset: "./assets/Axe_Bass.png" },
-      { cardId: "DemonicWishingEyeCard", asset: "./assets/Demonic_Wishing_Eye.png" },
-      { cardId: "ElectrodeGunCard", asset: "./assets/Electrode_Gun.png" },
-      { cardId: "FinnSwordCard", asset: "./assets/Finn_Sword.png" },
-      { cardId: "GauntletCard", asset: "./assets/Gauntlet.png" },
-      { cardId: "MushroomBombCard", asset: "./assets/Mushroom_Bomb.png" },
-      { cardId: "CandyKingdomCard", asset: "./assets/Candy_Kingdom.png" },
-      { cardId: "CottonCandyForestCard", asset: "./assets/Cotton_Candy_Forest.png" },
-      { cardId: "FireKingdomCard", asset: "./assets/Fire_Kingdom.png" },
-      { cardId: "GlassKingdomCard", asset: "./assets/Glass_Kingdom.png" },
-      { cardId: "IceKingdomCard", asset: "./assets/Ice_Kingdom.png" },
-      { cardId: "LandoftheDeadCard", asset: "./assets/Land_of_the_Dead.png" },
-      { cardId: "LumpySpaceCard", asset: "./assets/Lumpy_Space.png" },
-      { cardId: "MysteryMountainsCard", asset: "./assets/Mystery_Mountains.png" },
-      { cardId: "TreeHouseCard", asset: "./assets/TreeHouseINT.png" }],
-      coord: [[0, 1, 2, 3, 4],
-      [0, 1, 2, 3, 4],
-      [0, 1, 2, 3, 4],
-      [0, 1, 2, 3, 4],
-      [0, 1, 2, 3, 4],
-      ],
-      roomCoord: ["c0-0", "c0-2", "c0-4", "c2-4", "c4-4", "c4-2", "c4-0", "c2-0", "c2-2"],
-      playerLocation: ["c2-2"],
+      rooms: ["Candy Kingdom",
+        "Cotton Candy Forest",
+        "Fire Kingdom",
+        "Glass Kingdom",
+        "Ice Kingdom",
+        "Land of the Dead",
+        "Lumpy Space",
+        "Mystery Mountains",
+        "Tree House"],
+      cards: [{ cardId: "Bmo", asset: "./assets/bmo.png" },
+      { cardId: "Finn", asset: "./assets/finn.png" },
+      { cardId: "Jake", asset: "./assets/jake.png" },
+      { cardId: "Princess Bubblegum", asset: "./assets/princess_bubblegum.png" },
+      { cardId: "Axe Bass", asset: "./assets/Axe_Bass.png" },
+      { cardId: "Demonic Wishing Eye", asset: "./assets/Demonic_Wishing_Eye.png" },
+      { cardId: "Electrode Gun", asset: "./assets/Electrode_Gun.png" },
+      { cardId: "Finn Sword", asset: "./assets/Finn_Sword.png" },
+      { cardId: "Gauntlet", asset: "./assets/Gauntlet.png" },
+      { cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
+      { cardId: "Candy Kingdom", asset: "./assets/Candy_Kingdom.png" },
+      { cardId: "Cotton Candy Forest", asset: "./assets/Cotton_Candy_Forest.png" },
+      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
+      { cardId: "Glass Kingdom", asset: "./assets/Glass_Kingdom.png" },
+      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
+      { cardId: "Land of the Dead", asset: "./assets/Land_of_the_Dead.png" },
+      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" },
+      { cardId: "Mystery Mountains", asset: "./assets/Mystery_Mountains.png" },
+      { cardId: "Tree House", asset: "./assets/TreeHouseINT.png" }],
+      grid: [["./assets/Candy_Kingdom.png", "./assets/finn.png", "./assets/Cotton_Candy_Forest.png", "./assets/finn.png", "./assets/Fire_Kingdom.png"],
+      ["./assets/finn.png", "./assets/finn.png", "./assets/finn.png"],
+      ["./assets/Glass_Kingdom.png", "./assets/finn.png", "./assets/Ice_Kingdom.png", "./assets/finn.png", "./assets/Land_of_the_Dead.png"],
+      ["./assets/finn.png", "./assets/finn.png", "./assets/finn.png"],
+      ["./assets/Lumpy_Space.png", "./assets/finn.png", "./assets/Mystery_Mountains.png", "./assets/finn.png", "./assets/TreeHouseINT.png"],],
+      playerLocation: ["c2-0"],
     };
   },
   methods: {
@@ -131,57 +128,12 @@ export default {
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
     },
-    getRoom(coord) {
-      if (coord == this.roomCoord[0]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[1]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[2]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[3]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[4]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[5]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[6]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[7]) {
-        return 1;
-      }
-      else if (coord == this.roomCoord[8]) {
-        return 1;
-      }
-      else {
-        return 0;
-      }
+    suggest(a, b, c) {
+      this.gameStateAlert = 'Suggestion {Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c + '}';
     },
-    printToConsole: function (x) {
-      console.log(x)
-    },
-    printAccusationToConsole: function (a, b, c) {
-      console.log('Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c)
-    },
-    setRandomDiceData() {
-      const randomDiceNum = Math.floor(Math.random() * 6) + 1;
-      this.diceNum = randomDiceNum;
-    },
-    setDice() {
-      let count = 0;
-      const timer = setInterval(() => {
-        this.setRandomDiceData();
-        if (count >= 6) {
-          clearInterval(timer);
-        }
-        count += 1;
-      }, 150);
+    accuse(a, b, c) {
+      this.gameStateAlert = 'Accusation {Suspect: ' + a + '; \n Weapon: ' + b + '; Room: ' + c + '}';
+      alert('PLAYER 4 WINNER!!!');
     },
     broadcastMessage: function (coord) {
       this.connection.send(
@@ -217,17 +169,6 @@ export default {
       this.connection.close();
     }
   },
-  computed: {
-    getDice() {
-      this.setRandomDiceData();
-      return `dice dice-${this.diceNum}`;
-    }
-  },
-  watch: {
-    diceNum() {
-      console.log("Dice rolled!");
-    }
-  }
 };
 </script>
 
@@ -315,19 +256,12 @@ export default {
 }
 
 #cardGrid {
-  display: inline-block;
-}
-
-.card {
-  display: inline-block;
   position: relative;
   top: 250px;
 }
 
-#disproveCard {
-  position: relative;
-  bottom: -140px;
-  left: 1100px;
+.card {
+  display: inline-block;
 }
 
 #moveGrid {
@@ -339,39 +273,25 @@ export default {
   top: 130px;
 }
 
-.grid {
-  height: 80px;
-  width: 80px;
+#c1-0 {
+  position: relative;
+  right: 80px;
 }
 
-#c0-0:after {
-  content: 'Candy Kingdom';
-}
-#c0-2:after {
-  content: 'Cotton Candy Forest';
-}
-#c0-4:after {
-  content: 'Fire Kingdom';
-}
-#c2-4:after {
-  content: 'Glass Kingdom';
-}
-#c4-4:after {
-  content: 'Ice Kingdom';
-}
-#c4-2:after {
-  content: 'Land of the Dead';
-}
-#c4-0:after {
-  content: 'Lumpy Space';
-}
-#c2-0:after {
-  content: 'Mystery Mountains';
-}
-#c2-2:after {
-  content: 'Tree House';
+#c1-2 {
+  position: relative;
+  left: 80px;
 }
 
+#c3-0 {
+  position: relative;
+  right: 80px;
+}
+
+#c3-2 {
+  position: relative;
+  left: 80px;
+}
 </style>
 
 <!--  

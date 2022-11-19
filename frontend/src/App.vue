@@ -79,9 +79,6 @@ export default {
       this.connection.close();
     }
   },
-  watch: function() {
-
-  }
 }
 
 </script>
