@@ -40,7 +40,8 @@
     <div id="moveGrid">
       <div v-for="(row, idx1) in grid" v-bind:key="row">
         <input type="image" class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)" width="80" height="80" />
+          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)" 
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'width': '80px' , 'height':'80px' } : { 'width': '50px' , 'height':'40px'}]"/>
       </div>
     </div>
     <div id="cardGrid">
@@ -120,6 +121,7 @@ export default {
       ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
       ["./assets/Lumpy_Space.png", "./assets/Hallway.png", "./assets/Mystery_Mountains.png", "./assets/Hallway.png", "./assets/TreeHouseINT.png"],],
       playerLocation: ["c2-0"],
+      roomCoord: ['c0-0', 'c0-2', 'c0-4', 'c2-0', 'c2-2', 'c2-4', 'c4-0', 'c4-2', 'c4-4']
     };
   },
   methods: {
@@ -128,6 +130,38 @@ export default {
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
     },
+    getRoom(coord) {
+       if (coord == this.roomCoord[0]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[1]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[2]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[3]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[4]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[5]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[6]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[7]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[8]) {
+         return 1;
+       }
+       else {
+         return 0;
+       }
+      },
     suggest(a, b, c) {
       this.gameStateAlert = 'Suggestion {Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c + '}';
     },
@@ -273,24 +307,66 @@ export default {
   top: 130px;
 }
 
+#c0-1 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c0-3 {
+  position: relative;
+  bottom: 20px;
+}
+
 #c1-0 {
   position: relative;
   right: 80px;
+  transform: rotate(270deg);
+}
+
+#c1-1 {
+  transform: rotate(90deg);
 }
 
 #c1-2 {
   position: relative;
   left: 80px;
+  transform: rotate(90deg);
+}
+
+#c2-1 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c2-3 {
+  position: relative;
+  bottom: 20px;
 }
 
 #c3-0 {
   position: relative;
   right: 80px;
+  transform: rotate(270deg);
+}
+
+#c3-1 {
+  transform: rotate(270deg);
 }
 
 #c3-2 {
   position: relative;
   left: 80px;
+  transform: rotate(90deg);
+}
+
+#c4-1 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c4-3 {
+  position: relative;
+  bottom: 20px;
 }
 </style>
 
