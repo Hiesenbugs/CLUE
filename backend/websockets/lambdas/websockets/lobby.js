@@ -30,7 +30,6 @@ function writeToTable(connectionId, message) {
         TableName: lobbyTableName,
         Item: {
             connectionId: connectionId,
-            startGame: message.startGame,
             userId: message.userId,
             joinLobby: message.joinLobby
         }
@@ -47,15 +46,9 @@ exports.handler = (event, context, callback) => {
         getConnections().then((data) => {
             console.log(data);
 
-            let startGame = true;
-            let startGameCount = 0;
             let lobbyCount = 0;
 
             data.Items.forEach(item => {
-                message.startGame = item.startGame && startGame
-                if (item.startGame) {
-                    message.startGameCount = ++startGameCount;
-                }
                 if (item.joinLobby) {
                     message.lobbyCount = ++lobbyCount;
                 };// count of dynamodb table rows

@@ -1,79 +1,82 @@
 <template>
   <div id="app">
-    <h1>Adventure Time Clue!</h1>
-  </div>
-  <div class="turnButton">
-    <button @click="Move">Move</button>
-  </div>
-  <div class="turnButton">
-    <button @click="EndTurn">End Turn</button>
-  </div>
-  <div class="turnButton">
-    <button @click="setDice">Roll Dice</button>
-  </div>
-  <div id="rollDice">
-    <div :class="getDice"></div>
-  </div>
-  <div>
-    <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
-  </div>
-  <div id="suggestionButton">
-    <button @click="Suggestion">Suggestion</button>
-  </div>
-  <div id="accusationButton">
-    <button @click="Accusation">Accusation</button>
-  </div>
-  <div id="selectedSuspect">
-    <div v-for="suspect in suspects" v-bind:key="suspect">
-      <input type="checkbox" :id="suspect" :value="suspect"
-        :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
-      <label :for="suspect">{{ suspect }}</label>
+    <div id="title">
+      <h1>Adventure Time Clue!</h1>
+    </div>
+    <div id="gameStateAlert" style="white-space: pre;">Game State: {{ gameStateAlert }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div class="turnButton">
+      <button @click="EndTurn">End Turn</button>
+    </div>
+    <div id="suggestAccuseButton">
+      <button @click="suggest(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
+    </div>
+    <div id="suggestAccuseButton">
+      <button @click="accuse(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
+    </div>
+    <div id="selected">
+      <div id="selectedSuspect">
+        <div v-for="suspect in suspects" v-bind:key="suspect">
+          <input type="checkbox" :id="suspect" :value="suspect"
+            :disabled="checkedSuspect.length > 0 && checkedSuspect.indexOf(suspect) === -1" v-model="checkedSuspect">
+          <label :for="suspect">{{ suspect }}</label>
+        </div>
+      </div>
+      <div id="selectedWeapon">
+        <div v-for="weapon in weapons" v-bind:key="weapon">
+          <input type="checkbox" :id="weapon" :value="weapon"
+            :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
+          <label :for="weapon">{{ weapon }}</label>
+        </div>
+      </div>
+      <div id="selectedRoom">
+        <div v-for="room in rooms" v-bind:key="room">
+          <input type="checkbox" :id="room" :value="room"
+            :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room) === -1" v-model="checkedRoom">
+          <label :for="room">{{ room }}</label>
+        </div>
+      </div>
+    </div>
+    <div id="moveGrid">
+      <div v-for="(row, idx1) in grid" v-bind:key="row">
+        <input type="image" class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
+          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)" 
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'width': '80px' , 'height':'80px' } : { 'width': '50px' , 'height':'40px'}]"/>
+      </div>
+    </div>
+    <div id="cardGrid">
+      <figure class="card" v-for="hcard in playerHand" v-bind:key="hcard">
+        <img :src="require(`${hcard.asset}`)" width="50" height="50" />
+        <figcaption> {{ hcard.cardId }} - Hand </figcaption>
+      </figure>
+      <figure class="card" id="disproveCard" v-for="dcard in disproveCard" v-bind:key="dcard">
+        <img v-if="disprove" :src="require(`${dcard.asset}`)" width="50" height="50" />
+        <figcaption v-if="disprove"> {{ dcard.cardId }} - Disprove </figcaption>
+      </figure>
+    </div>
+    <div>
+      <textarea id="notebook" placeholder="Detective's Notebook"></textarea>
     </div>
   </div>
-  <div id="selectedWeapon">
-    <div v-for="weapon in weapons" v-bind:key="weapon">
-      <input type="checkbox" :id="weapon" :value="weapon"
-        :disabled="checkedWeapon.length > 0 && checkedWeapon.indexOf(weapon) === -1" v-model="checkedWeapon">
-      <label :for="weapon">{{ weapon }}</label>
-    </div>
-  </div>
-  <div id="selectedRoom">
-    <div v-for="room in rooms" v-bind:key="room">
-      <input type="checkbox" :id="room.name" :value="room.name"
-        :disabled="checkedRoom.length > 0 && checkedRoom.indexOf(room.name) === -1" v-model="checkedRoom">
-      <label :for="room.name">{{ room.name }}</label>
-    </div>
-  </div>
-  <div id="moveGrid">
-    <div v-for="(row, idx1) in coord" v-bind:key="row">
-      <button :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col" v-bind:style="color"></button>
-    </div>
-  </div>
-  <div id="roomGrid">
-    <button v-for="room in rooms" v-bind:key="room" :id="room.roomId" @click="printToConsole(room)">{{ room.name
-    }}</button>
-  </div>
-  <div id="cardGrid">
-    <figure class="card">
-      <img v-if="checkedRoom.length == 0" src="./assets/bmo.png" alt="bmo" width="100" height="100" />
-      <figcaption> Bmo Card Sample </figcaption>
-    </figure>
-  </div>
-  <div id="gameStateAlert">Game State: {{ gameStateAlert }}</div>
 </template>
 
 <script>
-//import axios from 'axios';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 export default {
   name: "App",
   data() {
     return {
-      gameStateAlert: ["Game State"],
+      gameStateAlert: [],
+      playerHand: [{ cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
+      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
+      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
+      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" }],
+      disproveCard: [{ cardId: "Bmo", asset: "./assets/bmo.png" }],
+      disprove: true,
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
-      diceNum: 1,
       suspects: ["Bmo",
         "Finn",
         "Jake",
@@ -84,56 +87,41 @@ export default {
         "Finn Sword",
         "Gauntlet",
         "Mushroom Bomb"],
-      rooms: [{ roomId: "CandyKingdom", name: "Candy Kingdom" },
-      { roomId: "CottonCandyForest", name: "Cotton Candy Forest" },
-      { roomId: "FireKingdom", name: "Fire Kingdom" },
-      { roomId: "GlassKingdom", name: "Glass Kingdom" },
-      { roomId: "IceKingdom", name: "Ice Kingdom" },
-      { roomId: "LandoftheDead", name: "Land of the Dead" },
-      { roomId: "LumpySpace", name: "Lumpy Space" },
-      { roomId: "MysteryMountains", name: "Mystery Mountains" },
-      { roomId: "TreeHouse", name: "Tree House" }],
-      cards: [{ cardId: "BmoCard", asset: "bmo.png" },
-      { cardId: "FinnCard", asset: "finn.png" },
-      { cardId: "JakeCard", asset: "jake.png" },
-      { cardId: "PrincessBubblegumCard", asset: "princess_bubblegum.png" },
-      { cardId: "AxeBassCard", asset: "Axe_Bass.png" },
-      { cardId: "DemonicWishingEyeCard", asset: "Demonic_Wishing_Eye.png" },
-      { cardId: "ElectrodeGunCard", asset: "Electrode_Gun.png" },
-      { cardId: "FinnSwordCard", asset: "Finn_Sword.png" },
-      { cardId: "GauntletCard", asset: "Gauntlet.png" },
-      { cardId: "MushroomBombCard", asset: "Mushroom_Bomb.png" },
-      { cardId: "CandyKingdomCard", asset: "Candy_Kingdom.png" },
-      { cardId: "CottonCandyForestCard", asset: "Cotton_Candy_Forest.png" },
-      { cardId: "FireKingdomCard", asset: "Fire_Kingdom.png" },
-      { cardId: "GlassKingdomCard", asset: "Glass_Kingdom.png" },
-      { cardId: "IceKingdomCard", asset: "Ice_Kingdom.png" },
-      { cardId: "LandoftheDeadCard", asset: "Land_of_the_Dead.png" },
-      { cardId: "LumpySpaceCard", asset: "Lumpy_Space.png" },
-      { cardId: "MysteryMountainsCard", asset: "Mystery_Mountains.png" },
-      { cardId: "TreeHouseCard", asset: "TreeHouseINT.png" }],
-      coord: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-      ],
-
-      color: "red",
-
-      xtest: [5, 5, 5, 5, 5, 5, 17, 17, 6, 6, 6, 6, 6, 6, 6, 17, 17, 6, 6, 6, 6, 6, 6]
+      rooms: ["Candy Kingdom",
+        "Cotton Candy Forest",
+        "Fire Kingdom",
+        "Glass Kingdom",
+        "Ice Kingdom",
+        "Land of the Dead",
+        "Lumpy Space",
+        "Mystery Mountains",
+        "Tree House"],
+      cards: [{ cardId: "Bmo", asset: "./assets/bmo.png" },
+      { cardId: "Finn", asset: "./assets/finn.png" },
+      { cardId: "Jake", asset: "./assets/jake.png" },
+      { cardId: "Princess Bubblegum", asset: "./assets/princess_bubblegum.png" },
+      { cardId: "Axe Bass", asset: "./assets/Axe_Bass.png" },
+      { cardId: "Demonic Wishing Eye", asset: "./assets/Demonic_Wishing_Eye.png" },
+      { cardId: "Electrode Gun", asset: "./assets/Electrode_Gun.png" },
+      { cardId: "Finn Sword", asset: "./assets/Finn_Sword.png" },
+      { cardId: "Gauntlet", asset: "./assets/Gauntlet.png" },
+      { cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
+      { cardId: "Candy Kingdom", asset: "./assets/Candy_Kingdom.png" },
+      { cardId: "Cotton Candy Forest", asset: "./assets/Cotton_Candy_Forest.png" },
+      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
+      { cardId: "Glass Kingdom", asset: "./assets/Glass_Kingdom.png" },
+      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
+      { cardId: "Land of the Dead", asset: "./assets/Land_of_the_Dead.png" },
+      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" },
+      { cardId: "Mystery Mountains", asset: "./assets/Mystery_Mountains.png" },
+      { cardId: "Tree House", asset: "./assets/TreeHouseINT.png" }],
+      grid: [["./assets/Candy_Kingdom.png", "./assets/Hallway.png", "./assets/Cotton_Candy_Forest.png", "./assets/Hallway.png", "./assets/Fire_Kingdom.png"],
+      ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
+      ["./assets/Glass_Kingdom.png", "./assets/Hallway.png", "./assets/Ice_Kingdom.png", "./assets/Hallway.png", "./assets/Land_of_the_Dead.png"],
+      ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
+      ["./assets/Lumpy_Space.png", "./assets/Hallway.png", "./assets/Mystery_Mountains.png", "./assets/Hallway.png", "./assets/TreeHouseINT.png"],],
+      playerLocation: ["c2-0"],
+      roomCoord: ['c0-0', 'c0-2', 'c0-4', 'c2-0', 'c2-2', 'c2-4', 'c4-0', 'c4-2', 'c4-4']
     };
   },
   methods: {
@@ -142,182 +130,120 @@ export default {
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
     },
-    printToConsole: function (x) {
-      console.log(x)
+    getRoom(coord) {
+       if (coord == this.roomCoord[0]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[1]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[2]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[3]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[4]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[5]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[6]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[7]) {
+         return 1;
+       }
+       else if (coord == this.roomCoord[8]) {
+         return 1;
+       }
+       else {
+         return 0;
+       }
+      },
+    suggest(a, b, c) {
+      this.gameStateAlert = 'Suggestion {Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c + '}';
     },
-    setRandomDiceData() {
-      const randomDiceNum = Math.floor(Math.random() * 6) + 1;
-      this.diceNum = randomDiceNum;
+    accuse(a, b, c) {
+      this.gameStateAlert = 'Accusation {Suspect: ' + a + '; \n Weapon: ' + b + '; Room: ' + c + '}';
+      alert('PLAYER 4 WINNER!!!');
     },
-    setDice() {
-      let count = 0;
-      const timer = setInterval(() => {
-        this.setRandomDiceData();
-        if (count >= 6) {
-          clearInterval(timer);
-        }
-        count += 1;
-      }, 150);
+    broadcastMessage: function (coord) {
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          location: coord,
+          "action": "game"
+        })
+      );
     }
   },
-  computed: {
-    getDice() {
-      this.setRandomDiceData();
-      return `dice dice-${this.diceNum}`;
+  created: function () {
+    console.log("Starting connection to WebSocket Server")
+    this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection.debug = true;
+    this.connection.reconnectInterval = 4000;
+
+    this.connection.onmessage = (event) => {
+      let response = JSON.parse(event.data)
+      console.log("Event Recieved from server", response);
+      this.playerLocation = response.message.location
+      this.gameStateAlert = 'Player has moved to ' + response.message.location
+      console.log("Location:", this.playerLocation)
+    }
+
+    this.connection.onopen = (event) => {
+      console.log(event)
+      console.log("Successfully connected to the echo websocket server...")
+    }
+
+    this.connection.onerror = function (err) {
+      console.error('Socket encountered error: ', err.message, 'Closing socket');
+      this.connection.close();
     }
   },
-  watch: {
-    diceNum() {
-      console.log("Dice rolled!");
-    }
-  }
 };
 </script>
 
 <style scoped>
 #app {
+  width: 1700px;
+  margin: 0 auto;
+  position: absolute;
+}
+
+#title {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
 #gameStateAlert {
   position: relative;
-  bottom: 800px;
-  left: 50px;
-}
-
-.card{
-  position: relative;
-  bottom: 225px;
-  left: 750px;
-}
-
-#CandyKingdom {
-  position: relative;
-  bottom: 650px;
+  top: 75px;
   left: 350px;
-  width: 75px;
-  height: 75px;
 }
 
-#CottonCandyForest {
+#playerLocation {
   position: relative;
-  bottom: 657px;
-  left: 542px;
-  width: 75px;
-  height: 75px;
-}
-
-#FireKingdom {
-  position: relative;
-  bottom: 650px;
-  left: 735px;
-  width: 75px;
-  height: 75px;
-}
-
-#GlassKingdom {
-  position: relative;
-  bottom: 450px;
-  left: 670px;
-  width: 75px;
-  height: 75px;
-}
-
-#IceKingdom {
-  position: relative;
-  bottom: 250px;
-  left: 585px;
-  width: 75px;
-  height: 75px;
-}
-
-#LandoftheDead {
-  position: relative;
-  bottom: 250px;
-  left: 242px;
-  width: 75px;
-  height: 75px;
-}
-
-#LumpySpace {
-  position: relative;
-  bottom: 250px;
-  right: 100px;
-  width: 75px;
-  height: 75px;
-}
-
-#MysteryMountains {
-  position: relative;
-  bottom: 400px;
-  right: 185px;
-  width: 75px;
-  height: 75px;
-}
-
-#TreeHouse {
-  position: relative;
-  bottom: 500px;
-  right: 260px;
-  width: 75px;
-  height: 75px;
-}
-
-#moveGrid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  bottom: 250px;
-}
-
-#accusationButton {
-  position: relative;
-  bottom: 122px;
-  left: 1100px;
-}
-
-#suggestionButton {
-  position: relative;
-  bottom: 100px;
-  left: 900px;
-}
-
-#selectedSuspect {
-  position: relative;
-  bottom: 100px;
-  left: 800px;
-}
-
-#selectedWeapon {
-  position: relative;
-  bottom: 180px;
-  left: 955px;
-}
-
-#selectedRoom {
-  position: relative;
-  bottom: 297px;
-  left: 1125px;
+  top: 75px;
+  left: 350px;
 }
 
 .turnButton {
   position: relative;
   top: 50px;
-  left: 50px;
+  left: 100px;
 }
 
 #notebook {
   width: 300px;
   min-height: 72px;
   padding: 2px;
-  resize: none;
+  resize: vertical;
   overflow: hidden;
   background-color: transparent;
   border: 2px solid #000;
@@ -328,49 +254,119 @@ export default {
   position: absolute;
   top: 0px;
   right: 0px;
+  overflow-y: scroll;
 }
 
-#rollDice {
+#suggestAccuseButton {
+  position: relative;
+  display: inline-block;
+  padding-left: 165px;
+  bottom: 55px;
+  left: 800px;
+}
+
+#selected {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+  bottom: 50px;
+}
+
+#selectedSuspect {
+  position: absolute;
+  left: 900px;
+}
+
+#selectedWeapon {
+  position: absolute;
+  left: 1055px;
+}
+
+#selectedRoom {
+  position: absolute;
+  left: 1225px;
+}
+
+#cardGrid {
+  position: relative;
+  top: 250px;
+}
+
+.card {
+  display: inline-block;
+}
+
+#moveGrid {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.dice {
-  display: inline-block;
-  min-height: 1em;
-  padding-left: 1em;
-  background-size: 1em;
-  background-repeat: no-repeat;
-  font-size: 3em;
   position: relative;
-  top: 50px;
-  right: 450px;
+  top: 130px;
 }
 
-.dice-1 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cg transform='translate(113.25%2C-494.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-406.5%2C374.7)'%3E%3Crect x='588' y='240.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(337.5%2C87.5)' cx='325' cy='227.4' r='12.5' style='fill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
+#c0-1 {
+  position: relative;
+  bottom: 20px;
 }
 
-.dice-2 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(109.9%2C-505.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-415.6%2C485.6)'%3E%3Crect x='613' y='40.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(326.5%2C-148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(398.5%2C-76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
+#c0-3 {
+  position: relative;
+  bottom: 20px;
 }
 
-.dice-3 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(84.9%2C-515.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-290.6%2C514.9)'%3E%3Crect x='413' y='2.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(126.5%2C-186)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(198.5%2C-114)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(162.5%2C-150)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
+#c1-0 {
+  position: relative;
+  right: 80px;
+  transform: rotate(270deg);
 }
 
-.dice-4 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(90.7%2C-499.7)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-302.7%2C367.8)'%3E%3Crect x='425.5' y='265.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(139%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(139%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
+#c1-1 {
+  transform: rotate(90deg);
 }
 
-.dice-5 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(89.2%2C-510.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-194.9%2C372.3)'%3E%3Crect x='213' y='277.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-73.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-73.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-37.5%2C125)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");
+#c1-2 {
+  position: relative;
+  left: 80px;
+  transform: rotate(90deg);
 }
 
-.dice-6 {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(86.2%2C-500.6)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-98.2%2C356.2)'%3E%3Crect x='25.5' y='290.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-261%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+#c2-1 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c2-3 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c3-0 {
+  position: relative;
+  right: 80px;
+  transform: rotate(270deg);
+}
+
+#c3-1 {
+  transform: rotate(270deg);
+}
+
+#c3-2 {
+  position: relative;
+  left: 80px;
+  transform: rotate(90deg);
+}
+
+#c4-1 {
+  position: relative;
+  bottom: 20px;
+}
+
+#c4-3 {
+  position: relative;
+  bottom: 20px;
 }
 </style>
 
@@ -515,9 +511,5 @@ class Player {
     }
 }
 -->
-
-
-
-
 
 
