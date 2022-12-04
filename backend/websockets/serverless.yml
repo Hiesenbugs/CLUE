@@ -1,0 +1,46 @@
+service: clue-websockets
+
+provider:
+    name: aws
+    runtime: nodejs16.x
+    region: us-east-1
+    environment:
+        gameTableName: ${self:custom.gameTableName}
+        lobbyTableName: ${self:custom.lobbyTableName}
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+              - "execute-api:ManageConnections"
+          Resource: '*'
+          
+custom:
+    gameTableName: game-table-dev
+    lobbyTableName: lobby-table-dev
+
+functions:
+    websocket-connect:
+        handler: lambdas/websockets/connect.handler
+        events:
+            - websocket:
+                  route: $connect
+    websocket-disconnect:
+        handler: lambdas/websockets/disconnect.handler
+        events:
+            - websocket:
+                  route: $disconnect
+    websocket-default:
+        handler: lambdas/websockets/default.handler
+        events:
+            - websocket:
+                  route: $default
+    websocket-lobby:
+        handler: lambdas/websockets/lobby.handler
+        events:
+            - websocket:
+                  route: lobby
+    websocket-game:
+        handler: lambdas/websockets/game.handler
+        events:
+            - websocket:
+                  route: game

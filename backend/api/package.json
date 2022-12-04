@@ -1,0 +1,24 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "heisenbugs clue game http endpoint",
+  "main": "main.py",
+  "scripts": {
+    "test": "sls deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hiesenbugs/CLUE.git"
+  },
+  "author": "sgaddip1@jh.edu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hiesenbugs/CLUE/issues"
+  },
+  "homepage": "https://github.com/Hiesenbugs/CLUE#readme",
+  "devDependencies": {
+    "serverless-python-requirements": "^6.0.0",
+    "serverless-websockets-plugin": "^1.0.0",
+    "serverless-wsgi": "^3.0.1"
+  }
+}
