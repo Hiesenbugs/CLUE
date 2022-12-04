@@ -58,6 +58,7 @@ export default {
     this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
     this.connection.debug = true;
     this.connection.reconnectInterval = 4000;
+    this.$cookie.set("connectionId", this.connection, 60 * 60 * 12) // 12 hour after, expire
 
     this.connection.onmessage = (event) => {
       let response = JSON.parse(event.data)
