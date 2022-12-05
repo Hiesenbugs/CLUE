@@ -2,6 +2,18 @@
   <div id="app">
     <div id="title">
       <h1>Adventure Time Clue!</h1>
+      <div id="joinLobbyButton">
+        <input v-model="this.userId" placeholder="Enter Name" />
+        <button :disabled="lobbyJoined" @click="JoinLobby">Join Lobby</button>
+      </div>
+      <div id="startButton">
+        <button :disabled="(lobbyCount < 2)" @click="StartGame">Start</button>
+      </div>
+      <div id="playersInLobby">
+        <!-- constant update on this -->
+        <h2>Lobby Count: {{ lobbyCount }} </h2>
+        <h2>Start: {{ beginGame }} </h2>
+      </div>
     </div>
     <div id="gameStateAlert" style="white-space: pre;">Game State: {{ gameStateAlert }}</div>
     <div id="playerLocation">Player Location: {{ playerLocation }}</div>
@@ -40,8 +52,8 @@
     <div id="moveGrid">
       <div v-for="(row, idx1) in grid" v-bind:key="row">
         <input type="image" class="grid" :id="getGrid(idx1, idx2)" v-for="(col, idx2) in row" v-bind:key="col"
-          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)" 
-          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'width': '80px' , 'height':'80px' } : { 'width': '50px' , 'height':'40px'}]"/>
+          @click="broadcastMessage(getGrid(idx1, idx2))" img :src="require(`${col}`)"
+          :style="[getRoom(getGrid(idx1, idx2)) == 1 ? { 'width': '80px', 'height': '80px' } : { 'width': '50px', 'height': '40px' }]" />
       </div>
     </div>
     <div id="cardGrid">
@@ -67,13 +79,16 @@ export default {
   name: "App",
   data() {
     return {
+      playerTurn: '',
+      userId: '',
+      websocketResponse: '',
+      lobbyCount: '',
+      beginGame: '',
+      lobbyJoined: false,
       gameStateAlert: [],
-      playerHand: [{ cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
-      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
-      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
-      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" }],
-      disproveCard: [{ cardId: "Bmo", asset: "./assets/bmo.png" }],
-      disprove: true,
+      playerHand: [],
+      disproveCard: [],
+      disprove: false,
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
@@ -96,78 +111,105 @@ export default {
         "Lumpy Space",
         "Mystery Mountains",
         "Tree House"],
-      cards: [{ cardId: "Bmo", asset: "./assets/bmo.png" },
-      { cardId: "Finn", asset: "./assets/finn.png" },
-      { cardId: "Jake", asset: "./assets/jake.png" },
-      { cardId: "Princess Bubblegum", asset: "./assets/princess_bubblegum.png" },
-      { cardId: "Axe Bass", asset: "./assets/Axe_Bass.png" },
-      { cardId: "Demonic Wishing Eye", asset: "./assets/Demonic_Wishing_Eye.png" },
-      { cardId: "Electrode Gun", asset: "./assets/Electrode_Gun.png" },
-      { cardId: "Finn Sword", asset: "./assets/Finn_Sword.png" },
-      { cardId: "Gauntlet", asset: "./assets/Gauntlet.png" },
-      { cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
-      { cardId: "Candy Kingdom", asset: "./assets/Candy_Kingdom.png" },
-      { cardId: "Cotton Candy Forest", asset: "./assets/Cotton_Candy_Forest.png" },
-      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
-      { cardId: "Glass Kingdom", asset: "./assets/Glass_Kingdom.png" },
-      { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
-      { cardId: "Land of the Dead", asset: "./assets/Land_of_the_Dead.png" },
-      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" },
-      { cardId: "Mystery Mountains", asset: "./assets/Mystery_Mountains.png" },
-      { cardId: "Tree House", asset: "./assets/TreeHouseINT.png" }],
       grid: [["./assets/Candy_Kingdom.png", "./assets/Hallway.png", "./assets/Cotton_Candy_Forest.png", "./assets/Hallway.png", "./assets/Fire_Kingdom.png"],
       ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
       ["./assets/Glass_Kingdom.png", "./assets/Hallway.png", "./assets/Ice_Kingdom.png", "./assets/Hallway.png", "./assets/Land_of_the_Dead.png"],
       ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
       ["./assets/Lumpy_Space.png", "./assets/Hallway.png", "./assets/Mystery_Mountains.png", "./assets/Hallway.png", "./assets/TreeHouseINT.png"],],
-      playerLocation: ["c2-0"],
+      playerLocation: [],
       roomCoord: ['c0-0', 'c0-2', 'c0-4', 'c2-0', 'c2-2', 'c2-4', 'c4-0', 'c4-2', 'c4-4']
     };
   },
   methods: {
+    setPlayerTurn() {
+      try {
+        this.playerTurn = "reached till here"
+        console.log(this.playerTurn)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    setInitalLocaiton() {
+      this.playerLocation = ['c0-0']
+    },
+    setInitialCards() {
+      this.playerHand = { cardId: "Bmo", asset: "./assets/bmo.png" }
+    },
+    Move() {
+      this.playerLocation
+      //this.gameStateAlert
+    },
+    MakeAccusation() {
+      this.checkedSuspect
+      this.checkedSuspect
+      this.checkedRoom
+
+      // get winning hand and match
+      // return 
+
+    },
+    MakeSuggestion() {
+      this.checkedSuspect
+      this.checkedSuspect
+      this.checkedRoom
+    },
+    JoinLobby: function () {
+      this.lobbyJoined = true;
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          joinLobby: true,
+          startGame: false,
+          "action": "game"
+        })
+      );
+    },
+    StartGame: function () {
+      this.connection.send(
+        JSON.stringify({
+          userId: this.userId,
+          joinLobby: true,
+          startGame: true,
+          "action": "game"
+        })
+      );
+    },
     getGrid(x, y) {
       this.xCoord = x;
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
     },
     getRoom(coord) {
-       if (coord == this.roomCoord[0]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[1]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[2]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[3]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[4]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[5]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[6]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[7]) {
-         return 1;
-       }
-       else if (coord == this.roomCoord[8]) {
-         return 1;
-       }
-       else {
-         return 0;
-       }
-      },
-    suggest(a, b, c) {
-      this.gameStateAlert = 'Suggestion {Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c + '}';
-    },
-    accuse(a, b, c) {
-      this.gameStateAlert = 'Accusation {Suspect: ' + a + '; \n Weapon: ' + b + '; Room: ' + c + '}';
-      alert('PLAYER 4 WINNER!!!');
+      if (coord == this.roomCoord[0]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[1]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[2]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[3]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[4]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[5]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[6]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[7]) {
+        return 1;
+      }
+      else if (coord == this.roomCoord[8]) {
+        return 1;
+      }
+      else {
+        return 0;
+      }
     },
     broadcastMessage: function (coord) {
       this.connection.send(
@@ -179,18 +221,30 @@ export default {
       );
     }
   },
+  watch: {
+    beginGame() {
+      if (this.beginGame == true) {
+        this.setPlayerTurn()
+        this.setInitalLocaiton()
+        this.setInitialCards()
+      }
+    },
+    immediate: true
+  },
   created: function () {
     console.log("Starting connection to WebSocket Server")
-    this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection = new ReconnectingWebSocket("wss://4fa24d5qqf.execute-api.us-east-1.amazonaws.com/dev")
     this.connection.debug = true;
     this.connection.reconnectInterval = 4000;
 
     this.connection.onmessage = (event) => {
       let response = JSON.parse(event.data)
       console.log("Event Recieved from server", response);
-      this.playerLocation = response.message.location
-      this.gameStateAlert = 'Player has moved to ' + response.message.location
-      console.log("Location:", this.playerLocation)
+      this.beginGame = response.message.startGame
+      console.log("Start Game:", this.beginGame)
+      this.lobbyCount = response.message.lobbyCount
+
+      console.log("Lobby Count:", this.lobbyCount)
     }
 
     this.connection.onopen = (event) => {

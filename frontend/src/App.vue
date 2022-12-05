@@ -7,7 +7,7 @@
       <button :disabled="lobbyJoined" @click="JoinLobby">Join Lobby</button>
     </div>
     <div id="startButton">
-      <button :disabled="lobbyCount < 4" @click="StartGame">Start</button>
+      <button :disabled="(lobbyCount < 3)" @click="StartGame">Start</button>
     </div>
     <div id="playersInLobby">
       <!-- constant update on this -->
@@ -55,7 +55,7 @@ export default {
   },
   created: function () {
     console.log("Starting connection to WebSocket Server")
-    this.connection = new ReconnectingWebSocket("wss://662507chgd.execute-api.us-east-1.amazonaws.com/dev")
+    this.connection = new ReconnectingWebSocket("wss://1gdgbqa0c2.execute-api.us-east-1.amazonaws.com/dev")
     this.connection.debug = true;
     this.connection.reconnectInterval = 4000;
 
