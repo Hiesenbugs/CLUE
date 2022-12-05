@@ -1,46 +1,155 @@
 service: clue-websockets
 
 provider:
-    name: aws
-    runtime: nodejs16.x
-    region: us-east-1
-    environment:
-        gameTableName: ${self:custom.gameTableName}
-        lobbyTableName: ${self:custom.lobbyTableName}
-    iamRoleStatements:
-        - Effect: Allow
-          Action:
-              - dynamodb:*
-              - "execute-api:ManageConnections"
-          Resource: '*'
-          
+  name: aws
+  stage: dev
+  runtime: nodejs16.x
+  region: us-east-1
+  environment:
+    gameTableName: ${self:custom.gameTableName}
+    lobbyTableName: ${self:custom.lobbyTableName}
+    boardTableName: ${self:custom.boardTableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+        - "execute-api:ManageConnections"
+      Resource: "*"
+
 custom:
-    gameTableName: game-table-dev
-    lobbyTableName: lobby-table-dev
+  lobbyTableName: "lobby-table-${self:provider.stage}"
+  boardTableName: "board-table-${self:provider.stage}"
+  gameTableName: "game-table-${self:provider.stage}"
+  detectiveLogTableName: "detective-log-table-${self:provider.stage}"
+  activeGamesTableName: "active-games-table-${self:provider.stage}"
+  chatHistoryTableName: "chat-history-table-${self:provider.stage}"
 
 functions:
-    websocket-connect:
-        handler: lambdas/websockets/connect.handler
-        events:
-            - websocket:
-                  route: $connect
-    websocket-disconnect:
-        handler: lambdas/websockets/disconnect.handler
-        events:
-            - websocket:
-                  route: $disconnect
-    websocket-default:
-        handler: lambdas/websockets/default.handler
-        events:
-            - websocket:
-                  route: $default
-    websocket-lobby:
-        handler: lambdas/websockets/lobby.handler
-        events:
-            - websocket:
-                  route: lobby
-    websocket-game:
-        handler: lambdas/websockets/game.handler
-        events:
-            - websocket:
-                  route: game
+  websocket-connect:
+    handler: lambdas/websockets/connect.handler
+    events:
+      - websocket:
+          route: $connect
+  websocket-disconnect:
+    handler: lambdas/websockets/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+  websocket-default:
+    handler: lambdas/websockets/default.handler
+    events:
+      - websocket:
+          route: $default
+  websocket-lobby:
+    handler: lambdas/websockets/lobby.handler
+    events:
+      - websocket:
+          route: lobby
+  websocket-game:
+    handler: lambdas/websockets/game.handler
+    events:
+      - websocket:
+          route: game
+
+resources:
+  Resources:
+    LobbyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.lobbyTableName}
+    BoardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.boardTableName}
+    GameTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.gameTableName}
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userIdconnectionIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: connectionId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: "ALL"
+          - IndexName: userIdgameIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: gameId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: "ALL"
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        BillingMode: PAY_PER_REQUEST
+    DetectiveLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.detectiveLogTableName}
+    ActiveGamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.activeGamesTableName}
+    ChatHistoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.chatHistoryTableName}

@@ -47,11 +47,16 @@ exports.handler = (event, context, callback) => {
             console.log(data);
 
             let lobbyCount = 0;
+            let startGame = true;
 
             data.Items.forEach(item => {
                 if (item.joinLobby) {
                     message.lobbyCount = ++lobbyCount;
                 };// count of dynamodb table rows
+            });
+
+            data.Items.forEach(item => {
+                    message.startGame = startGame && item.startGame;
             });
 
             data.Items.forEach(function (connection) {

@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const ddb = new AWS.DynamoDB.DocumentClient();
 
 let apiGatewayManagementApi;
-const gameTableName = process.env.gameTableName;
+const lobbyTableName = process.env.lobbyTableName;
 const apiVersion = '2018-11-29';
 
 function initApiGatewayManagementApi(event) {
@@ -22,17 +22,16 @@ async function send(connectionId, data) {
 }
 
 function getConnections() {
-    return ddb.scan({ TableName: gameTableName }).promise();
+    return ddb.scan({ TableName: lobbyTableName }).promise();
 }
 
 function writeToTable(connectionId, message) {
     return ddb.put({
-        TableName: gameTableName,
+        TableName: lobbyTableName,
         Item: {
             connectionId: connectionId,
             userId: message.userId,
-            joinLobby: message.joinLobby,
-            startGame: message.startGame
+            joinLobby: message.joinLobby
         }
     }).promise();
 }
@@ -48,19 +47,12 @@ exports.handler = (event, context, callback) => {
             console.log(data);
 
             let lobbyCount = 0;
-            let startGame = true;
 
             data.Items.forEach(item => {
                 if (item.joinLobby) {
                     message.lobbyCount = ++lobbyCount;
                 };// count of dynamodb table rows
             });
-
-            data.Items.forEach(item => {
-                startGame = startGame && item.startGame;
-            });
-            
-            message.startGame = startGame
 
             data.Items.forEach(function (connection) {
                 send(

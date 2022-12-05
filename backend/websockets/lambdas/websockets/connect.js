@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk');
 const ddb = new AWS.DynamoDB.DocumentClient();
 
-const lobbyTableName = process.env.lobbyTableName;
+const gameTableName = process.env.gameTableName;
 
 function addConnection(connectionId) {
     return ddb.put({
-        TableName: lobbyTableName,
+        TableName: gameTableName,
         Item: {
             connectionId: connectionId
         }
