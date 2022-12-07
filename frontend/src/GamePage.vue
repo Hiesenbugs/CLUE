@@ -3,7 +3,16 @@
     <div id="title">
       <h1>Adventure Time Clue!</h1>
     </div>
+    <figure class="playerCharacter" v-for="char in playerCharacter" v-bind:key="char">
+        <img :src="require(`${char.asset}`)" width="50" height="50" />
+        <figcaption> You are {{ char.id }}! </figcaption>
+    </figure>
     <div id="gameStateAlert" style="white-space: pre;">Game State: {{ gameStateAlert }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
     <div id="playerLocation">Player Location: {{ playerLocation }}</div>
     <div class="turnButton">
       <button @click="EndTurn">End Turn</button>
@@ -67,6 +76,7 @@ export default {
   name: "App",
   data() {
     return {
+      playerCharacter: [{id: "Bmo", asset: "./assets/bmo.png"}],
       gameStateAlert: [],
       playerHand: [{ cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
       { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
@@ -229,13 +239,13 @@ export default {
 
 #playerLocation {
   position: relative;
-  top: 75px;
+  top: -75px;
   left: 350px;
 }
 
 .turnButton {
   position: relative;
-  top: 50px;
+  top: -100px;
   left: 100px;
 }
 
@@ -261,7 +271,7 @@ export default {
   position: relative;
   display: inline-block;
   padding-left: 165px;
-  bottom: 55px;
+  bottom: 205px;
   left: 800px;
 }
 
@@ -271,7 +281,7 @@ export default {
   flex-direction: column;
   justify-content: top;
   align-items: center;
-  bottom: 50px;
+  bottom: 200px;
 }
 
 #selectedSuspect {
@@ -291,7 +301,7 @@ export default {
 
 #cardGrid {
   position: relative;
-  top: 250px;
+  top: 100px;
 }
 
 .card {
@@ -304,7 +314,7 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
-  top: 130px;
+  top: -20px;
 }
 
 #c0-1 {
