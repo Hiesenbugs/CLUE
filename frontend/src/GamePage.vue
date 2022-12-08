@@ -5,23 +5,23 @@
     </div>
     <figure class="playerCharacter" v-for="char in playerCharacter" v-bind:key="char">
         <img :src="require(`${char.asset}`)" width="50" height="50" />
-        <figcaption> You are {{ char.id }}! </figcaption>
+        <figcaption> Computer is {{ char.id }}! </figcaption>
     </figure>
     <div id="gameStateAlert" style="white-space: pre;">Game State: {{ gameStateAlert }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
-    <div id="playerLocation">Player Location: {{ playerLocation }}</div>
+    <div id="playerLocation">Bmo Location: {{ player1Location }}</div>
+    <div id="playerLocation">Finn Location: {{ player2Location }}</div>
+    <div id="playerLocation">Jake Location: {{ player3Location }}</div>
+    <div id="playerLocation">Princess Bubblegum Location: {{ player4Location }}</div>
+    <div id="playerLocation">Lemongrab Location: {{ player5Location }}</div>
+    <div id="playerLocation">Marshall Lee Location: {{ player6Location }}</div>
     <div class="turnButton">
-      <button @click="EndTurn">End Turn</button>
+      <button :disabled="gameOver == true" @click="endTurn">End Turn</button>
     </div>
     <div id="suggestAccuseButton">
-      <button @click="suggest(checkedSuspect, checkedWeapon, checkedRoom)">Suggestion</button>
+      <button :disabled="gameOver == true" @click="suggest()">Suggestion</button>
     </div>
     <div id="suggestAccuseButton">
-      <button @click="accuse(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
+      <button :disabled="gameOver == true" @click="accuse(checkedSuspect, checkedWeapon, checkedRoom)">Accusation</button>
     </div>
     <div id="selected">
       <div id="selectedSuspect">
@@ -76,21 +76,22 @@ export default {
   name: "App",
   data() {
     return {
-      playerCharacter: [{id: "Bmo", asset: "./assets/bmo.png"}],
+      playerCharacter: [{id: "Marshall Lee", asset: "./assets/Marshall_Lee.png"}],
       gameStateAlert: [],
-      playerHand: [{ cardId: "Mushroom Bomb", asset: "./assets/Mushroom_Bomb.png" },
-      { cardId: "Fire Kingdom", asset: "./assets/Fire_Kingdom.png" },
+      playerHand: [{ cardId: "Finn", asset: "./assets/finn.png" },
       { cardId: "Ice Kingdom", asset: "./assets/Ice_Kingdom.png" },
-      { cardId: "Lumpy Space", asset: "./assets/Lumpy_Space.png" }],
-      disproveCard: [{ cardId: "Bmo", asset: "./assets/bmo.png" }],
-      disprove: true,
+      { cardId: "Bmo", asset: "./assets/bmo.png" }],
+      disproveCard: [{ cardId: "Lemongrab", asset: "./assets/Lemongrab.png" }],
+      disprove: false,
       checkedSuspect: [],
       checkedWeapon: [],
       checkedRoom: [],
       suspects: ["Bmo",
         "Finn",
         "Jake",
-        "Princess Bubblegum"],
+        "Princess Bubblegum",
+        "Lemongrab",
+        "Marshall Lee"],
       weapons: ["Axe Bass",
         "Demonic Wishing Eye",
         "Electrode Gun",
@@ -130,7 +131,14 @@ export default {
       ["./assets/Glass_Kingdom.png", "./assets/Hallway.png", "./assets/Ice_Kingdom.png", "./assets/Hallway.png", "./assets/Land_of_the_Dead.png"],
       ["./assets/Hallway.png", "./assets/Hallway.png", "./assets/Hallway.png"],
       ["./assets/Lumpy_Space.png", "./assets/Hallway.png", "./assets/Mystery_Mountains.png", "./assets/Hallway.png", "./assets/TreeHouseINT.png"],],
-      playerLocation: ["c2-0"],
+      player1Location: ["c1-0: Hallway"],
+      player2Location: ["c1-1: Hallway"],
+      player3Location: ["c2-0: Glass Kingdom"],
+      player4Location: ["c2-0: Glass Kingdom"],
+      player5Location: ["c0-4: Fire Kingdom"],
+      player6Location: ["c2-4: Land of the Dead"],
+      invalid: ["Ice Kingdom"],
+      gameOver: false,
       roomCoord: ['c0-0', 'c0-2', 'c0-4', 'c2-0', 'c2-2', 'c2-4', 'c4-0', 'c4-2', 'c4-4']
     };
   },
@@ -139,6 +147,9 @@ export default {
       this.xCoord = x;
       this.yCoord = y;
       return `c${this.xCoord}-${this.yCoord}`;
+    },
+    endTurn() {
+      this.gameStateAlert = "Rebecca has made an incorrect accusation! \n Rebecca's turn has ended. Computer's turn has started!"
     },
     getRoom(coord) {
        if (coord == this.roomCoord[0]) {
@@ -172,12 +183,22 @@ export default {
          return 0;
        }
       },
-    suggest(a, b, c) {
-      this.gameStateAlert = 'Suggestion {Suspect: ' + a + '; Weapon: ' + b + '; Room: ' + c + '}';
+    suggest() {
+      this.gameStateAlert = "Kevin's turn has ended. Rebecca's turn has started!";
     },
     accuse(a, b, c) {
-      this.gameStateAlert = 'Accusation {Suspect: ' + a + '; \n Weapon: ' + b + '; Room: ' + c + '}';
-      alert('PLAYER 4 WINNER!!!');
+      if (c == this.invalid[0]) {
+        this.gameStateAlert = "Rebecca has made an incorrect accusation! \n Rebecca's turn has ended. Computer's turn has started!"
+        
+        this.gameOver = true;  
+        this.gameStateAlert = 'Accusation {Suspect: ' + a + '; \n Weapon: ' + b + '; Room: ' + c + '}';
+        this.disprove = false;
+        this.player5Location =  ["c0-4: Fire Kingdom"]
+      } 
+      else {
+        this.gameStateAlert = 'COMPUTER HAS WON!!!'
+        alert('COMPUTER HAS WON!!!');
+      }
     },
     broadcastMessage: function (coord) {
       this.connection.send(
@@ -198,9 +219,8 @@ export default {
     this.connection.onmessage = (event) => {
       let response = JSON.parse(event.data)
       console.log("Event Recieved from server", response);
-      this.playerLocation = response.message.location
-      this.gameStateAlert = 'Player has moved to ' + response.message.location
-      console.log("Location:", this.playerLocation)
+      this.gameStateAlert = 'Finn has moved to [ ' + response.message.location + ': Hallway ]'
+      this.player2Location = '[ ' + response.message.location + ': Hallway ]'
     }
 
     this.connection.onopen = (event) => {
